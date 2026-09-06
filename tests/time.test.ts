@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatRelative, formatWib, formatWibClock, parseDtg, resolveDayTime, toIso } from "../src/lib/time";
+import { formatClock, formatLocal, zoneOffsetHours } from "../src/lib/time";
 
 describe("parseDtg", () => {
   it("parses YYYYMMDD/HHMMZ", () => {
@@ -64,5 +65,26 @@ describe("formatting", () => {
     expect(formatRelative("2026-09-06T00:00:00Z", now, "en")).toBe("3 h ago");
     expect(formatRelative("2026-09-04T00:00:00Z", now, "id")).toBe("2 hr lalu");
     expect(formatRelative("2026-09-06T03:05:00Z", now, "en")).toBe("0 min ago");
+  });
+});
+
+describe("Indonesian time zones", () => {
+  const iso = "2026-09-06T11:30:00Z";
+
+  it("formats the clock in WIB, WITA and WIT", () => {
+    expect(formatClock(iso, "WIB")).toBe("18.30");
+    expect(formatClock(iso, "WITA")).toBe("19.30");
+    expect(formatClock(iso, "WIT")).toBe("20.30");
+  });
+
+  it("formats a full local date with the zone label", () => {
+    expect(formatLocal(iso, "id", "WIT")).toBe("6 Sep 2026, 20.30 WIT");
+    expect(formatLocal("2026-09-06T17:30:00Z", "en", "WIB")).toBe("7 Sept 2026, 00.30 WIB");
+  });
+
+  it("knows the offsets", () => {
+    expect(zoneOffsetHours("WIB")).toBe(7);
+    expect(zoneOffsetHours("WITA")).toBe(8);
+    expect(zoneOffsetHours("WIT")).toBe(9);
   });
 });

@@ -1,13 +1,18 @@
 /**
- * Scheduled job: pulls every current Darwin VAAC advisory for Indonesia, the
- * PVMBG alert levels and latest VONAs from MAGMA Indonesia, and the latest
- * Himawari frame time from NASA GIBS, then writes public/data/latest.json.
+ * Scheduled job: pulls every current Darwin VAAC advisory for Indonesia from
+ * the Bureau of Meteorology archive and the NOAA mirror, the PVMBG alert
+ * levels and latest VONAs from MAGMA Indonesia, airport METARs, NOTAMs when a
+ * key exists, and the latest Himawari frame time from NASA GIBS, then writes
+ * public/data/latest.json and the VAAC graphics under public/data/vag/.
  *
  * Network I/O lives here; all parsing is in src/lib and covered by tests.
  */
+import { execFile } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { promisify } from "node:util";
 import { AIRPORTS } from "../src/lib/airports";
+import { graphicNameFor, newestPerProduct, parseListing } from "../src/lib/bom-vaac";
 import {
   buildLatest,
   extractLatestFrameTime,
@@ -15,15 +20,23 @@ import {
   type NotamResult,
   type RawMetar,
   type SourceResult,
+  type TaggedAdvisory,
 } from "../src/lib/build-latest";
 import { summarizeNotams } from "../src/lib/notam-parser";
 import { parseActivityLevels, parseVonas } from "../src/lib/magma-parser";
-import { latestDataSchema, type Advisory, type LatestData, type SatelliteInfo } from "../src/lib/schema";
+import { latestDataSchema, type LatestData, type SatelliteInfo } from "../src/lib/schema";
 import { parseAllAdvisories } from "../src/lib/vaa-parser";
+import { resolveVolcano } from "../src/lib/volcanoes";
+
+const resolveId = (vaacField: string): string => resolveVolcano(vaacField).id;
 
 const OUT = resolve(process.cwd(), "public/data/latest.json");
+const VAG_DIR = resolve(process.cwd(), "public/data/vag");
+// Bureau of Meteorology anonymous archive: every Darwin advisory and graphic, ten product slots.
+const BOM_FTP = "ftp://ftp.bom.gov.au/anon/gen/vaac/";
 const NOAA_BASE = "https://tgftp.nws.noaa.gov/data/raw/fv/";
 const NOAA_FILES = Array.from({ length: 8 }, (_, i) => `fvau0${i + 1}.adrm..txt`);
+const execFileAsync = promisify(execFile);
 const MAGMA_LEVEL_URL = "https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivitas";
 const MAGMA_VONA_URL = "https://magma.esdm.go.id/v1/vona";
 const GIBS_CAPS_URL = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml";
@@ -54,26 +67,113 @@ async function fetchText(url: string, timeoutMs = 20_000): Promise<string> {
   }
 }
 
-async function fetchVaac(): Promise<{ result: SourceResult<Advisory[]>; partialFailures: string[] }> {
+/** Node's fetch has no FTP, so the BoM archive is read with curl, which every runner and dev box has. */
+async function curlFtp(url: string, extra: string[] = [], timeoutMs = 60_000): Promise<Buffer> {
+  const { stdout } = await execFileAsync("curl", ["-sS", "--fail", "--max-time", String(Math.ceil(timeoutMs / 1000)), ...extra, url], {
+    encoding: "buffer",
+    maxBuffer: 20 * 1024 * 1024,
+  });
+  return stdout;
+}
+
+interface BomFetch {
+  advisories: TaggedAdvisory[];
+  /** Graphic file name per volcano field, downloaded later for the volcanoes that stay active. */
+  graphics: Map<string, { name: string; stamp: string }>;
+}
+
+/** Newest advisory in each BoM product slot for this year (and last year's slots in January). */
+async function fetchBomVaac(now: Date): Promise<{ result: SourceResult<BomFetch>; partialFailures: string[] }> {
+  const partialFailures: string[] = [];
+  const years = [now.getUTCFullYear()];
+  if (now.getUTCMonth() === 0) years.push(now.getUTCFullYear() - 1);
+  const advisories: TaggedAdvisory[] = [];
+  const graphics = new Map<string, { name: string; stamp: string }>();
+  try {
+    const listings = await Promise.all(years.map((y) => curlFtp(`${BOM_FTP}${y}/`, ["--list-only"]).then((b) => ({ y, text: b.toString("utf8") }))));
+    const newest = newestPerProduct(listings.flatMap(({ text }) => parseListing(text)));
+    const yearOf = (stamp: string): string => stamp.slice(0, 4);
+    await Promise.all(
+      [...newest.values()].map(async (file) => {
+        try {
+          const text = (await curlFtp(`${BOM_FTP}${yearOf(file.stamp)}/${file.name}`)).toString("utf8");
+          const parsed = parseAllAdvisories(text);
+          for (const f of parsed.failures) partialFailures.push(`bom ${file.name}: ${f.header}: ${f.reason}`);
+          for (const advisory of parsed.advisories) {
+            const graphic = graphicNameFor(file.name);
+            advisories.push({ advisory, source: "bom", graphic: graphic ? `vag/${resolveId(advisory.volcano)}.png?v=${file.stamp}` : null });
+            if (graphic) graphics.set(advisory.volcano.trim().toUpperCase(), { name: `${yearOf(file.stamp)}/${graphic}`, stamp: file.stamp });
+          }
+        } catch (e) {
+          partialFailures.push(`bom ${file.name}: ${errorMessage(e)}`);
+        }
+      }),
+    );
+  } catch (e) {
+    return { result: { status: "failed", error: `bom: ${errorMessage(e)}` }, partialFailures };
+  }
+  return { result: { status: "ok", value: { advisories, graphics } }, partialFailures };
+}
+
+async function fetchNoaaVaac(): Promise<{ result: SourceResult<TaggedAdvisory[]>; partialFailures: string[] }> {
   const settled = await Promise.allSettled(NOAA_FILES.map((file) => fetchText(NOAA_BASE + file)));
   const partialFailures: string[] = [];
-  const advisories: Advisory[] = [];
+  const advisories: TaggedAdvisory[] = [];
   let fetchFailures = 0;
   settled.forEach((s, i) => {
     const name = NOAA_FILES[i]!;
     if (s.status === "rejected") {
       fetchFailures += 1;
-      partialFailures.push(`${name}: ${errorMessage(s.reason)}`);
+      partialFailures.push(`noaa ${name}: ${errorMessage(s.reason)}`);
       return;
     }
     const parsed = parseAllAdvisories(s.value);
-    for (const f of parsed.failures) partialFailures.push(`${name}: ${f.header}: ${f.reason}`);
-    advisories.push(...parsed.advisories);
+    for (const f of parsed.failures) partialFailures.push(`noaa ${name}: ${f.header}: ${f.reason}`);
+    for (const advisory of parsed.advisories) advisories.push({ advisory, source: "noaa", graphic: null });
   });
   if (fetchFailures === NOAA_FILES.length) {
-    return { result: { status: "failed", error: partialFailures.join("; ") }, partialFailures: [] };
+    return { result: { status: "failed", error: `noaa: ${partialFailures.join("; ")}` }, partialFailures: [] };
   }
   return { result: { status: "ok", value: advisories }, partialFailures };
+}
+
+/** Both sources together; the builder keeps the newest per volcano. Only a total outage counts as failure. */
+async function fetchVaac(now: Date): Promise<{ result: SourceResult<TaggedAdvisory[]>; partialFailures: string[]; graphics: BomFetch["graphics"] }> {
+  const [bom, noaa] = await Promise.all([fetchBomVaac(now), fetchNoaaVaac()]);
+  const partialFailures = [...bom.partialFailures, ...noaa.partialFailures];
+  const advisories: TaggedAdvisory[] = [];
+  const failures: string[] = [];
+  if (bom.result.status === "ok") advisories.push(...bom.result.value.advisories);
+  else failures.push(bom.result.error);
+  if (noaa.result.status === "ok") advisories.push(...noaa.result.value);
+  else failures.push(noaa.result.error);
+  if (failures.length === 2) return { result: { status: "failed", error: failures.join("; ") }, partialFailures: [], graphics: new Map() };
+  for (const f of failures) partialFailures.push(f);
+  return { result: { status: "ok", value: advisories }, partialFailures, graphics: bom.result.status === "ok" ? bom.result.value.graphics : new Map() };
+}
+
+/**
+ * Downloads the official VAAC graphic for each active volcano and clears the field
+ * for any that could not be fetched, so the page never links to a missing picture.
+ */
+async function fetchGraphics(volcanoes: LatestData["volcanoes"], graphics: BomFetch["graphics"]): Promise<void> {
+  await mkdir(VAG_DIR, { recursive: true });
+  for (const v of volcanoes) {
+    if (!v.graphic) continue;
+    const key = v.vaac?.volcano.trim().toUpperCase();
+    const g = key ? graphics.get(key) : undefined;
+    if (!v.active || !g) {
+      v.graphic = null;
+      continue;
+    }
+    try {
+      const png = await curlFtp(`${BOM_FTP}${g.name}`);
+      await writeFile(resolve(VAG_DIR, `${v.id}.png`), png);
+    } catch (e) {
+      console.error(`warning: vag ${v.id}: ${errorMessage(e)}`);
+      v.graphic = null;
+    }
+  }
 }
 
 /** Both MAGMA pages must load: a missing level table would silently drop every Level III marker. */
@@ -159,7 +259,7 @@ async function main(): Promise<void> {
   const now = new Date();
   const [previous, vaac, magma, satellite, metars, notams] = await Promise.all([
     readPrevious(),
-    fetchVaac(),
+    fetchVaac(now),
     fetchMagma(),
     fetchSatellite(),
     fetchMetars(),
@@ -175,11 +275,13 @@ async function main(): Promise<void> {
     notams,
     previous,
   });
+  await fetchGraphics(data.volcanoes, vaac.graphics);
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, `${JSON.stringify(data, null, 2)}\n`, "utf8");
   for (const e of data.sourceErrors) console.error(`warning: ${e}`);
+  for (const n of data.notes) console.info(`note: ${n}`);
   const summary = data.volcanoes
-    .map((v) => `${v.id}${v.active ? "*" : ""}(L${v.activityLevel?.level ?? "?"})`)
+    .map((v) => `${v.id}${v.active ? "*" : ""}(L${v.activityLevel?.level ?? "?"}${v.advisorySource ? `,${v.advisorySource}` : ""})`)
     .join(" ");
   const ashAirports = data.airports.filter((a) => a.ash).map((a) => a.iata).join(",");
   const closed = data.airports.filter((a) => a.notam?.closed).map((a) => a.iata).join(",");

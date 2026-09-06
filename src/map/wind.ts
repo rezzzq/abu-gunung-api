@@ -1,7 +1,7 @@
 import L from "leaflet";
 import { COLORS, openMeteoUrl } from "../config";
 import { bearingToCompass, compassName, t, type Locale } from "../i18n";
-import { formatWibClock } from "../lib/time";
+import { formatClock, type Zone } from "../lib/time";
 import { destinationPoint, pickWindReport, towardDeg, type WindLevelKey, type WindReport } from "../lib/wind-report";
 
 export type { WindReport } from "../lib/wind-report";
@@ -19,7 +19,7 @@ const LEVEL_LABEL: Record<WindLevelKey, "windSurface" | "windLow" | "windMid" | 
   high: "windHigh",
 };
 
-export function renderWindCard(el: HTMLElement, report: WindReport | null, locale: Locale): void {
+export function renderWindCard(el: HTMLElement, report: WindReport | null, locale: Locale, zone: Zone): void {
   const title = `<h2>${t(locale, "wind")}</h2>`;
   if (!report) {
     el.innerHTML = `${title}<p class="hint">${t(locale, "windUnavailable")}</p>`;
@@ -36,7 +36,7 @@ export function renderWindCard(el: HTMLElement, report: WindReport | null, local
       </div>`;
     })
     .join("");
-  el.innerHTML = `${title}<p class="hint">${t(locale, "windHint")}</p><div class="wind-rows">${rows}</div><p class="hint">${t(locale, "windAt", { time: formatWibClock(report.time) })}</p>`;
+  el.innerHTML = `${title}<p class="hint">${t(locale, "windHint")}</p><div class="wind-rows">${rows}</div><p class="hint">${t(locale, "windAt", { time: `${formatClock(report.time, zone)} ${zone}` })}</p>`;
 }
 
 /** Draws one arrow per wind level from the crater in the direction ash would travel. */

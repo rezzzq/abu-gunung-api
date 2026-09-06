@@ -18,6 +18,12 @@ Bahasa Indonesia is the default language; English is one tap away.
   and the +6, +12 and +18 hour forecasts, coloured by altitude band (amber for
   low ash, hatched purple for high ash). Other active volcanoes show their
   current zone as a dashed outline.
+- The full advisory in plain words: eruption details, each layer's altitude in
+  km, feet and flight level with its movement in km/h and knots, area and
+  reach, forecast valid times, the analyst's remarks, the next advisory time
+  with an overdue warning, the official Darwin VAAC graphic, the advisory
+  history and the original bulletin text. Times use the volcano's own zone
+  (WIB, WITA or WIT).
 - PVMBG alert level and the latest VONA (Volcano Observatory Notice for
   Aviation) per volcano from MAGMA Indonesia.
 - Four satellite views of Himawari-9 behind one control with a menu: daytime
@@ -48,7 +54,12 @@ Bahasa Indonesia is the default language; English is one tap away.
 
 ```
 scripts/fetch-data.ts  (every 15 min in CI)
-  -> all eight Darwin VAAC bulletins via the NOAA mirror  (text, parsed in src/lib/vaa-parser.ts)
+  -> the newest bulletin in each of the ten Darwin VAAC product slots from the
+     Bureau of Meteorology archive (ftp.bom.gov.au/anon/gen/vaac, read with curl),
+     plus the eight files on the NOAA mirror; the newest per volcano wins and a
+     lag between the two is noted            (text, parsed in src/lib/vaa-parser.ts,
+                                              checked by src/lib/advisory-check.ts)
+  -> the matching VAAC graphic per active volcano -> public/data/vag/<code>.png (not committed)
   -> MAGMA Indonesia level table and all-volcano VONA page (HTML, parsed in src/lib/magma-parser.ts)
   -> NASA GIBS capabilities                               (latest Himawari frame time)
   -> aviationweather.gov METARs for the airports in src/lib/airports.ts (parsed in src/lib/metar-parser.ts)
@@ -74,10 +85,14 @@ browser
 If the Himawari step fails, it records the error in the JSON and keeps the
 previous images; the satellite control then skips the affected views.
 
-If the VAAC mirror is down, the script keeps the previous volcano list; if
-MAGMA is down it keeps the previous levels and VONAs. Either way it records
-the problem in `sourceErrors` and the page shows a small warning instead of a
-blank map.
+Every parsed advisory passes sanity checks (coordinates inside a generous box
+around the Darwin area, polygon size and distance, layer order, issue time).
+A bulletin that fails keeps the previous good one and records why. If both
+VAAC sources are down, the script keeps the previous volcano list; if MAGMA is
+down it keeps the previous levels, VONAs and Level III markers. Either way it
+records the problem in `sourceErrors` and the page shows a small warning
+instead of a blank map. The parser is also run against a 45-bulletin sample
+from the 2026 archive in the test suite.
 
 ## Run it locally
 

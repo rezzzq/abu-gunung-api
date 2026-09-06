@@ -1,8 +1,9 @@
 import { RGB_STALE_MIN, STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
 import { compassName, levelLabel, t, vonaColorLabel, type Locale } from "../i18n";
 import { formatAltitude, formatKm } from "../lib/flight-level";
+import { maxDistanceKm, polygonAreaKm2 } from "../lib/geo";
 import type { AshLayer, Himawari, VolcanoStatus } from "../lib/schema";
-import { formatRelative, formatWib, formatWibClock, minutesBetween } from "../lib/time";
+import { formatClock, formatLocal, formatRelative, formatWib, minutesBetween, type Zone } from "../lib/time";
 import { isHighLayer, type TimeStep } from "../map/ash-layer";
 
 function escapeHtml(s: string): string {
@@ -30,12 +31,95 @@ function headlineFor(layers: AshLayer[], locale: Locale): string {
  * The peek shows one line: the PVMBG level as a small pill, the volcano name and the ash headline.
  * Everything else about the advisory and the VONA goes to the detail card in the sheet body.
  */
+const OVERDUE_GRACE_MIN = 45;
+
+function numberFmt(locale: Locale, n: number): string {
+  return new Intl.NumberFormat(locale === "id" ? "id-ID" : "en-GB").format(n);
+}
+
+/** One line per layer: altitude in km, feet and flight level; movement; area; reach. */
+function layerLines(layers: AshLayer[], volcano: VolcanoStatus, locale: Locale): string {
+  if (!layers.length) return `<li>${t(locale, "noLayers")}</li>`;
+  return layers
+    .map((layer) => {
+      const base = layer.baseFl === 0 ? t(locale, "surface") : formatAltitude(layer.baseFl, locale);
+      const parts = [`${t(locale, isHighLayer(layer) ? "layerHigh" : "layerLow")}: ${t(locale, "layerRange", { base, top: formatAltitude(layer.topFl, locale) })} · ${t(locale, "flLabel", { fl: layer.topFl })}`];
+      if (layer.movement) {
+        parts.push(
+          `${t(locale, "ashTowards", { dir: compassName(locale, layer.movement.direction) })} ${t(locale, "layerSpeed", { kmh: Math.round(layer.movement.speedKt * 1.852), kt: layer.movement.speedKt })}`,
+        );
+      } else parts.push(t(locale, "notMoving").toLowerCase());
+      parts.push(t(locale, "layerArea", { km2: numberFmt(locale, Math.round(polygonAreaKm2(layer.polygon) / 100) * 100) }));
+      parts.push(t(locale, "layerReach", { km: numberFmt(locale, Math.round(maxDistanceKm(volcano.lon, volcano.lat, layer.polygon))) }));
+      return `<li>${escapeHtml(parts.join(" · "))}</li>`;
+    })
+    .join("");
+}
+
+/** Everything the advisory says, in order, for the detail card. */
+function advisoryDetail(volcano: VolcanoStatus, locale: Locale, now: Date): string {
+  const adv = volcano.vaac;
+  if (!adv) return "";
+  const zone = volcano.zone;
+  const parts: string[] = [];
+  const meta: string[] = [];
+  if (adv.advisoryNumber) meta.push(t(locale, "advisoryNo", { n: adv.advisoryNumber }));
+  meta.push(t(locale, "issued", { time: formatLocal(adv.issuedAt, locale, zone) }));
+  parts.push(`<p class="status__meta" title="${escapeHtml(adv.issuedAt)}">${escapeHtml(meta.join(" · "))}</p>`);
+  if (adv.infoSource) parts.push(`<p class="status__meta">${escapeHtml(t(locale, "advInfoSource", { src: adv.infoSource }))}</p>`);
+  if (adv.eruptionDetails) parts.push(`<p class="adv__line"><b>${t(locale, "advEruption")}:</b> ${escapeHtml(adv.eruptionDetails)}</p>`);
+  if (volcano.active && adv.observation) {
+    const key = adv.observation.kind === "OBS" ? "advObserved" : "advEstimated";
+    parts.push(`<p class="adv__line"><b>${escapeHtml(t(locale, key, { time: formatLocal(adv.observation.time, locale, zone) }))}</b></p><ul class="adv__layers">${layerLines(adv.observation.layers, volcano, locale)}</ul>`);
+  }
+  if (volcano.active && adv.forecasts.length) {
+    const rows = adv.forecasts
+      .map((f) => {
+        const tops = f.layers.length
+          ? f.layers.map((l) => `${t(locale, isHighLayer(l) ? "layerHigh" : "layerLow").toLowerCase()} ≤ ${formatKm(l.topFl, locale)}`).join("; ")
+          : t(locale, "noLayers");
+        return `<li>${escapeHtml(`${t(locale, "stepPlus", { h: f.hoursAhead })} (${formatClock(f.time, zone)} ${zone}): ${tops}`)}</li>`;
+      })
+      .join("");
+    parts.push(`<p class="adv__line"><b>${t(locale, "advForecasts")}</b></p><ul class="adv__layers">${rows}</ul>`);
+  }
+  if (adv.remarks) parts.push(`<p class="adv__line"><b>${t(locale, "advRemarks")}:</b> ${escapeHtml(adv.remarks)}</p>`);
+  if (!volcano.active) parts.push(`<p class="status__meta">${t(locale, "advisoryEnded")}</p>`);
+  else if (adv.nextAdvisoryBy) {
+    parts.push(`<p class="status__meta">${escapeHtml(t(locale, "nextAdvisory", { time: formatLocal(adv.nextAdvisoryBy, locale, zone) }))}</p>`);
+    const late = minutesBetween(adv.nextAdvisoryBy, now);
+    if (late > OVERDUE_GRACE_MIN) parts.push(`<p class="status__warn">${escapeHtml(t(locale, "advOverdue", { min: late }))}</p>`);
+  }
+  if (volcano.advisorySource) {
+    parts.push(`<p class="status__meta">${escapeHtml(t(locale, "advSource", { src: t(locale, volcano.advisorySource === "bom" ? "srcBom" : "srcNoaa") }))}</p>`);
+  }
+  if (volcano.graphic) {
+    parts.push(
+      `<figure class="adv__figure"><img class="adv__graphic" src="${escapeHtml(`${import.meta.env.BASE_URL}data/${volcano.graphic}`)}" alt="${escapeHtml(t(locale, "advGraphic"))}" loading="lazy" onerror="this.parentElement.hidden=true"><figcaption class="hint">${t(locale, "advGraphic")}</figcaption></figure>`,
+    );
+  }
+  if (volcano.history.length > 1) {
+    const rows = volcano.history
+      .map((h) => {
+        const bits = [h.number ?? "—", formatLocal(h.issuedAt, locale, zone)];
+        if (h.topFl !== null) bits.push(t(locale, "ashTop", { alt: formatKm(h.topFl, locale) }));
+        if (h.direction) bits.push(t(locale, "ashTowards", { dir: compassName(locale, h.direction) }));
+        return `<li>${escapeHtml(bits.join(" · "))}</li>`;
+      })
+      .join("");
+    parts.push(`<details class="adv__details"><summary>${t(locale, "advHistory", { n: volcano.history.length })}</summary><ul class="adv__layers">${rows}</ul></details>`);
+  }
+  parts.push(`<details class="adv__details"><summary>${t(locale, "advRaw")}</summary><pre class="adv__raw">${escapeHtml(adv.raw)}</pre></details>`);
+  return parts.join("");
+}
+
 export function renderStatus(
   peek: HTMLElement,
   detail: HTMLElement,
   volcano: VolcanoStatus | null,
   sourceErrors: string[],
   locale: Locale,
+  now: Date = new Date(),
 ): void {
   if (!volcano) {
     peek.innerHTML = `<p class="status__empty">${t(locale, "noVolcanoes")}</p>`;
@@ -67,21 +151,10 @@ export function renderStatus(
     );
   }
   if (badges.length) lines.push(`<div class="status__row">${badges.join("")}</div>`);
-  const last = volcano.vaac;
-  if (last) {
-    const meta: string[] = [];
-    if (last.advisoryNumber) meta.push(t(locale, "advisoryNo", { n: last.advisoryNumber }));
-    meta.push(t(locale, "issued", { time: formatWib(last.issuedAt, locale) }));
-    lines.push(`<p class="status__meta">${escapeHtml(meta.join(" · "))}</p>`);
-    if (!volcano.active) lines.push(`<p class="status__meta">${t(locale, "advisoryEnded")}</p>`);
-    else if (last.nextAdvisoryBy) {
-      lines.push(`<p class="status__meta">${escapeHtml(t(locale, "nextAdvisory", { time: formatWib(last.nextAdvisoryBy, locale) }))}</p>`);
-    }
-  } else {
-    lines.push(`<p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`);
-  }
+  if (volcano.vaac) lines.push(advisoryDetail(volcano, locale, now));
+  else lines.push(`<p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`);
   if (vona?.text) {
-    const stamp = `VONA ${formatWib(vona.time, locale)}`;
+    const stamp = `VONA ${formatLocal(vona.time, locale, volcano.zone)}`;
     lines.push(
       `<p class="vona-text clamped" id="vona-text"><b>${escapeHtml(stamp)}:</b> ${escapeHtml(vona.text)}</p><button type="button" class="linklike" id="vona-more">${t(locale, "readMore")}</button>`,
     );
@@ -145,14 +218,14 @@ export function layerPopupHtml(layer: AshLayer, locale: Locale): string {
 export { escapeHtml };
 
 /** Colour key for the Ash RGB or the ash signal view, with the scan time; empty when neither is on. */
-export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "truecolor" | "rgb" | "signal" | null, now: Date, locale: Locale): void {
+export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "truecolor" | "rgb" | "signal" | null, now: Date, locale: Locale, zone: Zone): void {
   if (!mode || !meta?.scanTime) {
     el.innerHTML = "";
     return;
   }
   const stale = minutesBetween(meta.scanTime, now) > RGB_STALE_MIN;
-  const time = t(locale, "rgbTime", { time: formatWibClock(meta.scanTime) });
-  const timeRow = `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatWib(meta.scanTime, locale))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`;
+  const time = t(locale, "rgbTime", { time: `${formatClock(meta.scanTime, zone)} ${zone}` });
+  const timeRow = `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatLocal(meta.scanTime, locale, zone))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`;
   const rows =
     mode === "truecolor"
       ? [`<div class="legend__row"><span class="legend__note">${t(locale, "trueLegend")}</span></div>`, timeRow]

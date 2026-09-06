@@ -4,7 +4,7 @@ import L from "leaflet";
 import { DATA_URL, FOCUS_MAX_ZOOM, HIMAWARI_URL, LINKS, REFRESH_MS, WIND_REFRESH_MS } from "./config";
 import { getLocale, setLocale, t, type Locale } from "./i18n";
 import { himawariSchema, latestDataSchema, type LatestData, type VolcanoStatus } from "./lib/schema";
-import { formatWibClock } from "./lib/time";
+import { formatClock, type Zone } from "./lib/time";
 import { AshLayer, isHighLayer, type TimeStep } from "./map/ash-layer";
 import { Basemap } from "./map/basemap";
 import { createMap } from "./map/map";
@@ -116,6 +116,8 @@ let rendered: { id: string | null; header: string | null } = { id: null, header:
 
 const currentStep = (): TimeStep | null => steps[stepIndex] ?? null;
 const selected = (): VolcanoStatus | null => latest?.volcanoes.find((v) => v.id === selectedId) ?? null;
+/** Times are shown in the selected volcano's civil zone; Jakarta time until one is selected. */
+const zone = (): Zone => selected()?.zone ?? "WIB";
 
 function volcanoPopupHtml(v: VolcanoStatus): string {
   const parts = [`<strong>${escapeHtml(v.name)}</strong>`];
@@ -184,9 +186,9 @@ function selectVolcano(id: string | null, focus: boolean): void {
   rendered = { id: v?.id ?? null, header: advisory?.header ?? null };
   // Rebuild the time steps only when the advisory changed, so a poll does not reset the selection.
   if (changed || !chips) {
-    steps = advisory ? buildSteps(advisory, locale) : [];
+    steps = advisory ? buildSteps(advisory, locale, zone()) : [];
     chips?.stop();
-    chips = initTimeChips(els.chips, steps, locale, showStep);
+    chips = initTimeChips(els.chips, steps, locale, zone(), showStep);
     if (!steps.length) showStep(0);
   }
   renderStatus(els.status, els.statusDetail, v, latest?.sourceErrors ?? [], locale);
@@ -241,7 +243,7 @@ async function loadWind(): Promise<void> {
   const v = selected();
   if (!v) {
     wind = null;
-    renderWindCard(els.windCard, null, locale);
+    renderWindCard(els.windCard, null, locale, zone());
     windLayer.show(null, null);
     return;
   }
@@ -259,7 +261,7 @@ async function loadWind(): Promise<void> {
     windCache.set(v.id, { at: Date.now(), report: wind });
     if (selected()?.id !== v.id) return; // the user moved on while we waited
   }
-  renderWindCard(els.windCard, wind, locale);
+  renderWindCard(els.windCard, wind, locale, v.zone);
   windLayer.show(wind, v);
 }
 
@@ -328,7 +330,7 @@ function renderSatelliteControl(): void {
   els.toggleSat.setAttribute("aria-label", t(locale, SAT_LABEL[mode]));
   const frame = latest?.satellite?.latestFrameTime;
   els.toggleSat.title =
-    mode === "ir" && frame ? t(locale, "satelliteFrame", { time: formatWibClock(frame) })
+    mode === "ir" && frame ? t(locale, "satelliteFrame", { time: `${formatClock(frame, zone())} ${zone()}` })
     : !satellite.available("rgb") ? `${t(locale, SAT_LABEL[mode])} · ${t(locale, "rgbUnavailable")}`
     : t(locale, SAT_LABEL[mode]);
   const tag = SAT_TAG[mode];
@@ -337,8 +339,8 @@ function renderSatelliteControl(): void {
   if (!els.satMenu.hidden) renderSatMenu();
   const now = new Date();
   const legendMode = mode === "off" || mode === "ir" ? null : mode;
-  renderSatLegend(els.legendSat, satellite.productMeta(), legendMode, now, locale);
-  renderSatLegend(els.peekSat, satellite.productMeta(), legendMode, now, locale);
+  renderSatLegend(els.legendSat, satellite.productMeta(), legendMode, now, locale, zone());
+  renderSatLegend(els.peekSat, satellite.productMeta(), legendMode, now, locale, zone());
 }
 els.toggleSat.addEventListener("click", () => {
   if (els.satMenu.hidden) openSatMenu();

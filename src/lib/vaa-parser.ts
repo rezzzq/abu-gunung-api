@@ -155,6 +155,7 @@ export function parseAdvisory(bulletin: string): ParseResult {
     header,
     issuedAt: toIso(issued),
     volcano,
+    area: fields.get("AREA") ?? null,
     position: lat !== null && lon !== null ? { lat, lon } : null,
     elevationM: elev ? Number(elev[1]) : null,
     advisoryNumber: fields.get("ADVISORY NR") ?? null,

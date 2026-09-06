@@ -195,3 +195,33 @@ NXT ADVISORY: NO FURTHER ADVISORIES=`;
     expect(isTerminated(r.advisory)).toBe(true);
   });
 });
+
+describe("BoM archive sample", () => {
+  const sample = readFileSync(new URL("./fixtures/bom-sample-2026.txt", import.meta.url), "utf8");
+
+  it("parses every bulletin in a 45-advisory sample from the 2026 archive without failures", () => {
+    const bulletins = splitBulletins(sample);
+    expect(bulletins.length).toBeGreaterThanOrEqual(40);
+    const r = parseAllAdvisories(sample);
+    expect(r.failures).toEqual([]);
+    expect(r.advisories).toHaveLength(bulletins.length);
+    for (const a of r.advisories) {
+      expect(a.position).not.toBeNull();
+      expect(a.area).toBeTruthy();
+      expect(a.forecasts.map((f) => f.hoursAhead)).toEqual([6, 12, 18]);
+    }
+    // Darwin also covers Papua New Guinea; the builder filters those out by AREA.
+    expect(r.advisories.filter((a) => a.area === "INDONESIA").length).toBeGreaterThan(35);
+  });
+
+  it("finds a polygon whenever the cloud field names a flight level band", () => {
+    for (const bulletin of splitBulletins(sample)) {
+      const fields = parseFields(bulletin);
+      const cloud = fields.get("OBS VA CLD") ?? fields.get("EST VA CLD") ?? "";
+      const r = parseAdvisory(bulletin);
+      if (!r.ok) throw new Error(r.reason);
+      const expectsLayers = /(?:SFC|FL\d{3})\/FL\d{3}/.test(cloud) && !/NOT IDENTIFIABLE|NO VA EXP/.test(cloud);
+      expect(r.advisory.observation!.layers.length > 0).toBe(expectsLayers);
+    }
+  });
+});

@@ -300,6 +300,14 @@ img.ash-signal { image-rendering: auto; }
 .footer__brand img { width: 26px; height: 26px; border-radius: 7px; }
 .footer__brand b { color: var(--ink-soft); font-weight: 700; }
 
+.adv__line { margin: 0; font-size: 13.5px; }
+.adv__layers { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; color: var(--ink-soft); }
+.adv__figure { margin: 4px 0 0; display: grid; gap: 4px; }
+.adv__graphic { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.adv__details { font-size: 13px; }
+.adv__details summary { cursor: pointer; font-weight: 700; color: var(--ink); }
+.adv__details ul { margin-top: 6px; }
+.adv__raw { margin: 6px 0 0; padding: 10px; border-radius: 10px; background: var(--abu); font-family: var(--font-data); font-size: 11px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
 .vona-text { font-size: 13px; color: var(--ink-soft); }
 .vona-text.clamped { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .linklike { justify-self: start; border: 0; background: none; padding: 0; color: var(--ink); font-weight: 700; font-size: 12.5px; cursor: pointer; text-decoration: underline; }

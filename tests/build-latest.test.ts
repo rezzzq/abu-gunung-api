@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLatest, extractLatestFrameTime } from "../src/lib/build-latest";
+import type { TaggedAdvisory } from "../src/lib/build-latest";
 import type { Advisory, LatestData } from "../src/lib/schema";
 
 const now = new Date("2026-09-06T10:00:00Z");
@@ -10,6 +11,7 @@ function advisory(volcano: string, issuedAt: string, topFl: number | null, extra
     header: `FVAU04 ADRM ${issuedAt.slice(8, 10)}${issuedAt.slice(11, 13)}${issuedAt.slice(14, 16)}`,
     issuedAt,
     volcano,
+    area: "INDONESIA",
     position: null,
     elevationM: null,
     advisoryNumber: null,
@@ -59,6 +61,8 @@ const metarsOk = {
     { icao: "WARR", raw: "METAR WARR 061300Z 12008KT 4000 HZ FEW020 27/22 Q1014 NOSIG" },
   ],
 };
+const tag = (advs: Advisory[], source: "noaa" | "bom" = "noaa"): TaggedAdvisory[] =>
+  advs.map((advisory) => ({ advisory, source, graphic: null }));
 const base = {
   now,
   vaacPartialFailures: [] as string[],
@@ -71,7 +75,7 @@ const base = {
 
 describe("buildLatest", () => {
   it("lists one entry per volcano, newest advisory each, active ones first by ash top", () => {
-    const d = buildLatest({ ...base, advisories: { status: "ok", value: [semeru, krakatauOld, krakatau] } });
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: tag([semeru, krakatauOld, krakatau]) } });
     // Sinabung and Merapi are Level III in the MAGMA snapshot, so they follow as markers.
     expect(d.volcanoes.map((v) => v.id)).toEqual(["KRA", "SMR", "MER", "SIN"]);
     const kra = d.volcanoes[0]!;
@@ -84,7 +88,7 @@ describe("buildLatest", () => {
 
   it("keeps a terminated or stale advisory but marks the volcano inactive", () => {
     const stale = advisory("DUKONO 268010", "2026-09-04T07:00:00Z", 70, { position: { lat: 1.7, lon: 127.9 } });
-    const d = buildLatest({ ...base, advisories: { status: "ok", value: [sinabung, stale] } });
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: tag([sinabung, stale]) } });
     const sin = d.volcanoes.find((v) => v.id === "SIN");
     expect(sin?.active).toBe(false);
     expect(sin?.vaac?.header).toBe(sinabung.header);
@@ -93,7 +97,7 @@ describe("buildLatest", () => {
   });
 
   it("adds Level III and IV volcanoes without an advisory as markers, positioned from the table", () => {
-    const d = buildLatest({ ...base, advisories: { status: "ok", value: [] } });
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: tag([]) } });
     const ids = d.volcanoes.map((v) => v.id);
     expect(ids).toContain("MER");
     expect(ids).toContain("SIN");
@@ -103,21 +107,21 @@ describe("buildLatest", () => {
   });
 
   it("skips an unknown volcano whose advisory has no position and says so", () => {
-    const d = buildLatest({ ...base, advisories: { status: "ok", value: [nowhere] } });
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: tag([nowhere]) } });
     expect(d.volcanoes.find((v) => v.name === "Mount Nowhere")).toBeUndefined();
     expect(d.sourceErrors.some((e) => /Mount Nowhere/.test(e))).toBe(true);
   });
 
   it("keeps the previous volcano list when the VAAC fetch failed", () => {
-    const previous: LatestData = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] } });
+    const previous: LatestData = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatau]) } });
     const d = buildLatest({ ...base, previous, advisories: { status: "failed", error: "timeout" } });
     expect(d.volcanoes.map((v) => v.id)).toEqual(previous.volcanoes.map((v) => v.id));
     expect(d.sourceErrors[0]).toMatch(/kept previous/);
   });
 
   it("keeps previous levels and VONAs when MAGMA failed", () => {
-    const previous: LatestData = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau, semeru] } });
-    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: [krakatau, semeru] }, magma: { status: "failed", error: "HTTP 403" } });
+    const previous: LatestData = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatau, semeru]) } });
+    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: tag([krakatau, semeru]) }, magma: { status: "failed", error: "HTTP 403" } });
     expect(d.volcanoes.find((v) => v.id === "SMR")?.latestVona?.time).toBe("2026-09-06T08:49:00Z");
     expect(d.volcanoes.find((v) => v.id === "KRA")?.activityLevel?.level).toBe(3);
     expect(d.magmaFetchedAt).toBeNull();
@@ -128,7 +132,7 @@ describe("buildLatest", () => {
     const d = buildLatest({
       ...base,
       vaacPartialFailures: ["fvau07.adrm..txt: HTTP 404"],
-      advisories: { status: "ok", value: [krakatau] },
+      advisories: { status: "ok", value: tag([krakatau]) },
       satellite: { status: "failed", error: "timeout" },
     });
     expect(d.satellite).toBeNull();
@@ -136,9 +140,39 @@ describe("buildLatest", () => {
   });
 });
 
+describe("buildLatest sources, history and checks", () => {
+  it("prefers the newer advisory when both sources carry the volcano and notes the lag", () => {
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: [...tag([krakatauOld], "noaa"), ...tag([krakatau], "bom")] } });
+    const kra = d.volcanoes.find((v) => v.id === "KRA")!;
+    expect(kra.vaac?.header).toBe(krakatau.header);
+    expect(kra.advisorySource).toBe("bom");
+    expect(d.notes).toEqual([expect.stringMatching(/KRA.*noaa .*03:30.*bom .*09:10/)]);
+  });
+
+  it("carries the BoM graphic and accumulates an advisory history across runs", () => {
+    const first = buildLatest({ ...base, advisories: { status: "ok", value: [{ advisory: krakatauOld, source: "bom", graphic: "vag/KRA.png?v=202609060330" }] } });
+    expect(first.volcanoes[0]?.graphic).toBe("vag/KRA.png?v=202609060330");
+    expect(first.volcanoes[0]?.history).toEqual([{ number: null, issuedAt: "2026-09-06T03:30:00Z", topFl: 300, direction: null }]);
+    const second = buildLatest({ ...base, previous: first, advisories: { status: "ok", value: tag([krakatau], "bom") } });
+    expect(second.volcanoes[0]?.history.map((h) => h.issuedAt)).toEqual(["2026-09-06T09:10:00Z", "2026-09-06T03:30:00Z"]);
+    const again = buildLatest({ ...base, previous: second, advisories: { status: "ok", value: tag([krakatau], "bom") } });
+    expect(again.volcanoes[0]?.history).toHaveLength(2);
+  });
+
+  it("rejects an advisory that fails the sanity checks and keeps the previous one", () => {
+    const previous = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatauOld]) } });
+    const broken = advisory("KRAKATAU 262000", "2026-09-06T09:30:00Z", 500, {
+      observation: { kind: "OBS", time: "2026-09-06T09:10:00Z", layers: [{ baseFl: 0, topFl: 500, polygon: [[10, 50], [11, 50], [11, 51]], movement: null }] },
+    });
+    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: tag([broken]) } });
+    expect(d.volcanoes.find((v) => v.id === "KRA")?.vaac?.header).toBe(krakatauOld.header);
+    expect(d.sourceErrors.filter((e) => e.startsWith("vaac:"))).toEqual([expect.stringMatching(/rejected .*KRAKATAU.*outside the Darwin area.*kept FVAU04 ADRM 060330/)]);
+  });
+});
+
 describe("buildLatest airports", () => {
   it("lists every airport in the table, with its parsed report when one exists", () => {
-    const d = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] } });
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatau]) } });
     const cgk = d.airports.find((a) => a.icao === "WIII")!;
     expect(cgk).toMatchObject({ iata: "CGK", ash: true, visibilityM: 7000, observedAt: "2026-09-06T13:00:00Z" });
     const bdo = d.airports.find((a) => a.icao === "WICC")!;
@@ -148,17 +182,17 @@ describe("buildLatest airports", () => {
 
   it("attaches NOTAM facts when the API answered and keeps them when it later fails", () => {
     const notam = { closed: true, closedUntil: "2026-09-06T16:00:00Z", ashNotam: true, notams: [] };
-    const withNotam = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] }, notams: { status: "ok", value: [{ icao: "WIII", status: notam }] } });
+    const withNotam = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatau]) }, notams: { status: "ok", value: [{ icao: "WIII", status: notam }] } });
     expect(withNotam.airports.find((a) => a.icao === "WIII")?.notam).toEqual(notam);
     expect(withNotam.airports.find((a) => a.icao === "WARR")?.notam).toBeNull();
-    const later = buildLatest({ ...base, previous: withNotam, advisories: { status: "ok", value: [krakatau] }, notams: { status: "failed", error: "HTTP 500" } });
+    const later = buildLatest({ ...base, previous: withNotam, advisories: { status: "ok", value: tag([krakatau]) }, notams: { status: "failed", error: "HTTP 500" } });
     expect(later.airports.find((a) => a.icao === "WIII")?.notam?.closed).toBe(true);
     expect(later.sourceErrors.some((e) => e.startsWith("notam: kept previous"))).toBe(true);
   });
 
   it("keeps the previous reports when the METAR fetch failed", () => {
-    const previous = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] } });
-    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: [krakatau] }, metars: { status: "failed", error: "HTTP 503" } });
+    const previous = buildLatest({ ...base, advisories: { status: "ok", value: tag([krakatau]) } });
+    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: tag([krakatau]) }, metars: { status: "failed", error: "HTTP 503" } });
     expect(d.airports.find((a) => a.icao === "WIII")?.ash).toBe(true);
     expect(d.sourceErrors).toContain("metar: kept previous airport reports because fetch failed: HTTP 503");
   });

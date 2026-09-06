@@ -1,6 +1,6 @@
 import { t, type Locale } from "../i18n";
 import type { Advisory } from "../lib/schema";
-import { formatWibClock } from "../lib/time";
+import { formatClock, type Zone } from "../lib/time";
 import type { TimeStep } from "../map/ash-layer";
 
 const PLAY_INTERVAL_MS = 1500;
@@ -8,14 +8,14 @@ const PLAY_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v1
 const PAUSE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zm8 0h4v16h-4z"/></svg>';
 
 /** Observation first, then each forecast, as chip-ready steps. */
-export function buildSteps(adv: Advisory, locale: Locale): TimeStep[] {
+export function buildSteps(adv: Advisory, locale: Locale, zone: Zone): TimeStep[] {
   const steps: TimeStep[] = [];
   if (adv.observation) {
     const key = adv.observation.kind === "OBS" ? "observedAt" : "estimatedAt";
     steps.push({
       label: t(locale, "stepNow"),
       time: adv.observation.time,
-      description: t(locale, key, { time: `${formatWibClock(adv.observation.time)} WIB` }),
+      description: t(locale, key, { time: `${formatClock(adv.observation.time, zone)} ${zone}` }),
       layers: adv.observation.layers,
     });
   }
@@ -23,7 +23,7 @@ export function buildSteps(adv: Advisory, locale: Locale): TimeStep[] {
     steps.push({
       label: t(locale, "stepPlus", { h: f.hoursAhead }),
       time: f.time,
-      description: t(locale, "forecastFor", { time: `${formatWibClock(f.time)} WIB` }),
+      description: t(locale, "forecastFor", { time: `${formatClock(f.time, zone)} ${zone}` }),
       layers: f.layers,
     });
   }
@@ -40,6 +40,7 @@ export function initTimeChips(
   el: HTMLElement,
   steps: TimeStep[],
   locale: Locale,
+  zone: Zone,
   onChange: (index: number) => void,
 ): TimeChips {
   el.innerHTML = "";
@@ -82,7 +83,7 @@ export function initTimeChips(
     b.className = "segment";
     b.setAttribute("role", "tab");
     b.textContent = step.label;
-    b.title = `${formatWibClock(step.time)} WIB`;
+    b.title = `${formatClock(step.time, zone)} ${zone}`;
     b.addEventListener("click", () => {
       stop();
       setIndex(i);

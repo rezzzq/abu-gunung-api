@@ -37,6 +37,8 @@ export const advisorySchema = z.object({
   header: z.string().min(1),
   issuedAt: isoDateTime,
   volcano: z.string().min(1),
+  /** The AREA line, e.g. "INDONESIA"; null when missing. */
+  area: z.string().nullable().default(null),
   /** Source position from the PSN line, null when the bulletin has none. */
   position: z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) }).nullable(),
   /** Summit elevation in metres from SOURCE ELEV, null when missing. */
@@ -80,7 +82,24 @@ export const volcanoStatusSchema = z.object({
   lon: z.number().min(-180).max(180),
   elevationM: z.number().nullable(),
   region: z.string().nullable(),
+  /** Civil time zone used to show this volcano's times. */
+  zone: z.enum(["WIB", "WITA", "WIT"]).default("WIB"),
   vaac: advisorySchema.nullable(),
+  /** Where the current advisory came from: BoM's own archive or the NOAA mirror. */
+  advisorySource: z.enum(["bom", "noaa"]).nullable().default(null),
+  /** Path (under data/) of the official VAAC graphic for the current advisory, when BoM supplied it. */
+  graphic: z.string().nullable().default(null),
+  /** Recent advisories for this volcano, newest first, kept across runs. */
+  history: z
+    .array(
+      z.object({
+        number: z.string().nullable(),
+        issuedAt: isoDateTime,
+        topFl: z.number().nullable(),
+        direction: z.string().nullable(),
+      }),
+    )
+    .default([]),
   /** True when the advisory is fresh and not terminated; only active volcanoes carry ash zones. */
   active: z.boolean(),
   activityLevel: activityLevelSchema.nullable(),
@@ -128,6 +147,8 @@ export const latestDataSchema = z.object({
   volcanoes: z.array(volcanoStatusSchema),
   airports: z.array(airportStatusSchema).default([]),
   magmaFetchedAt: isoDateTime.nullable(),
+  /** Informational notes such as a lag between advisory sources; not failures. */
+  notes: z.array(z.string()).default([]),
   satellite: satelliteSchema.nullable(),
   sourceErrors: z.array(z.string()),
 });

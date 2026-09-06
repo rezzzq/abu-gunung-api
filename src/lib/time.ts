@@ -2,7 +2,10 @@ export type Locale = "id" | "en";
 
 const DTG_RE = /^(\d{4})(\d{2})(\d{2})\/(\d{2})(\d{2})Z?$/;
 const DAYTIME_RE = /^(\d{2})\/(\d{2})(\d{2})Z?$/;
-const WIB = "Asia/Jakarta";
+/** Indonesia's three civil time zones, west to east. */
+export type Zone = "WIB" | "WITA" | "WIT";
+const ZONE_IANA: Record<Zone, string> = { WIB: "Asia/Jakarta", WITA: "Asia/Makassar", WIT: "Asia/Jayapura" };
+const ZONE_OFFSET: Record<Zone, number> = { WIB: 7, WITA: 8, WIT: 9 };
 
 /** Parses a VAAC date-time group such as "20260906/0030Z" into a UTC Date. */
 export function parseDtg(value: string): Date | null {
@@ -48,23 +51,37 @@ export function toIso(d: Date): string {
   return d.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
-export function formatWibClock(iso: string): string {
+export function zoneOffsetHours(zone: Zone): number {
+  return ZONE_OFFSET[zone];
+}
+
+/** Clock in "HH.MM" as Indonesians write it, in the given zone. */
+export function formatClock(iso: string, zone: Zone): string {
   return new Intl.DateTimeFormat("id-ID", {
-    timeZone: WIB,
+    timeZone: ZONE_IANA[zone],
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   }).format(new Date(iso));
 }
 
-export function formatWib(iso: string, locale: Locale): string {
+/** Date and clock with the zone label, e.g. "6 Sep 2026, 18.30 WIB". */
+export function formatLocal(iso: string, locale: Locale, zone: Zone): string {
   const date = new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", {
-    timeZone: WIB,
+    timeZone: ZONE_IANA[zone],
     day: "numeric",
     month: "short",
     year: "numeric",
   }).format(new Date(iso));
-  return `${date}, ${formatWibClock(iso)} WIB`;
+  return `${date}, ${formatClock(iso, zone)} ${zone}`;
+}
+
+export function formatWibClock(iso: string): string {
+  return formatClock(iso, "WIB");
+}
+
+export function formatWib(iso: string, locale: Locale): string {
+  return formatLocal(iso, locale, "WIB");
 }
 
 export function minutesBetween(fromIso: string, now: Date): number {
