@@ -1,5 +1,6 @@
 import L from "leaflet";
-import { BASEMAP, COLORS, INITIAL_VIEW, VOLCANO } from "../config";
+import { COLORS, INITIAL_VIEW, VOLCANO } from "../config";
+import { plumeHtml } from "./plume";
 
 /** Adds an SVG hatch pattern to the map's vector renderer so high ash layers can use it as fill. */
 function addHatchPattern(map: L.Map): void {
@@ -29,7 +30,14 @@ function addHatchPattern(map: L.Map): void {
   container.prepend(defs);
 }
 
-export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
+export interface MapParts {
+  map: L.Map;
+  /** The crater marker; the smoke plume is drawn inside its icon. */
+  volcano: L.Marker;
+}
+
+/** Creates the map shell. The basemap tiles are added separately so they can follow the theme. */
+export function createMap(el: HTMLElement, volcanoPopupHtml: string): MapParts {
   const map = L.map(el, {
     center: INITIAL_VIEW.center,
     zoom: INITIAL_VIEW.zoom,
@@ -37,17 +45,21 @@ export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
     attributionControl: true,
     worldCopyJump: true,
   });
-  L.tileLayer(BASEMAP.url, { attribution: BASEMAP.attribution, maxZoom: BASEMAP.maxZoom }).addTo(map);
   map.createPane("satellite").style.zIndex = "350";
   map.createPane("wind").style.zIndex = "450";
 
-  const icon = L.divIcon({ className: "", html: '<div class="volcano-marker"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
-  L.marker([VOLCANO.lat, VOLCANO.lon], { icon, zIndexOffset: 1000, keyboard: true, title: VOLCANO.name })
+  const icon = L.divIcon({
+    className: "",
+    html: `<div class="volcano-marker">${plumeHtml()}</div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  });
+  const volcano = L.marker([VOLCANO.lat, VOLCANO.lon], { icon, zIndexOffset: 1000, keyboard: true, title: VOLCANO.name })
     .bindPopup(volcanoPopupHtml)
     .addTo(map);
 
   addHatchPattern(map);
   // On wide screens the left panel covers part of the map; shift the view so the strait stays visible.
   if (window.matchMedia("(min-width: 900px)").matches) map.panBy([-220, 0], { animate: false });
-  return map;
+  return { map, volcano };
 }

@@ -16,11 +16,22 @@ export const HIGH_LAYER_FL = 250;
 /** Sunda Strait with Jakarta and Bandar Lampung both on screen on a phone at this zoom. */
 export const INITIAL_VIEW = { center: [-6.3, 105.6] as [number, number], zoom: 7 };
 
+/** Esri tile services need no API key. Light: World Topo. Dark: Dark Gray Canvas base plus its label layer. */
 export const BASEMAP = {
-  url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
-  attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS',
-  maxZoom: 19,
-};
+  light: {
+    layers: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"],
+    attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS',
+    maxZoom: 19,
+  },
+  dark: {
+    layers: [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+    ],
+    attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+    maxZoom: 16,
+  },
+} as const;
 
 export const SATELLITE = {
   layer: "Himawari_AHI_Band13_Clean_Infrared",

@@ -5,14 +5,18 @@ import { DATA_URL, LINKS, REFRESH_MS, VOLCANO, WIND_REFRESH_MS } from "./config"
 import { getLocale, setLocale, t, type Locale } from "./i18n";
 import { latestDataSchema, type LatestData } from "./lib/schema";
 import { formatWibClock } from "./lib/time";
+import { plumeDriftDeg } from "./lib/plume";
 import { AshLayer, type TimeStep } from "./map/ash-layer";
+import { Basemap } from "./map/basemap";
 import { createMap } from "./map/map";
+import { Plume } from "./map/plume";
 import { SatelliteLayer } from "./map/satellite-layer";
 import { fetchWind, renderWindCard, WindLayer, type WindReport } from "./map/wind";
 import { initLocationCheck } from "./ui/location-check";
 import { initShare } from "./ui/share";
 import { initSheet } from "./ui/sheet";
 import { layerPopupHtml, renderFreshness, renderLegend, renderStatus, renderStepInfo } from "./ui/status-card";
+import { initTheme } from "./ui/theme";
 import { buildSteps, initTimeChips, type TimeChips } from "./ui/time-chips";
 
 function byId<T extends HTMLElement>(id: string): T {
@@ -35,6 +39,7 @@ const els = {
   bannerRetry: byId<HTMLButtonElement>("banner-retry"),
   toggleSat: byId<HTMLButtonElement>("toggle-sat"),
   toggleWind: byId<HTMLButtonElement>("toggle-wind"),
+  toggleTheme: byId<HTMLButtonElement>("toggle-theme"),
   locate: byId<HTMLButtonElement>("locate"),
   legend: byId<HTMLDivElement>("legend"),
   chips: byId<HTMLDivElement>("time-chips"),
@@ -79,7 +84,10 @@ els.lang.addEventListener("click", () => {
 });
 
 // Map and layers
-const map = createMap(els.map, `<strong>${VOLCANO.name}</strong><br>${VOLCANO.elevationM} m`);
+const { map, volcano } = createMap(els.map, `<strong>${VOLCANO.name}</strong><br>${VOLCANO.elevationM} m`);
+const basemap = new Basemap(map);
+initTheme(els.toggleTheme, locale, (theme) => basemap.setTheme(theme));
+const plume = new Plume(volcano);
 const ashLayer = new AshLayer(map, (layer) => layerPopupHtml(layer, locale));
 const satellite = new SatelliteLayer(map);
 const windLayer = new WindLayer(map, locale);
@@ -126,6 +134,7 @@ function applyData(data: LatestData): void {
   const previousHeader = latest?.vaac?.header;
   latest = data;
   renderStatus(els.status, data, locale);
+  plume.setActive(data.vaac !== null);
   renderFreshness(els.freshness, data.generatedAt, new Date(), locale);
   if (data.satellite?.latestFrameTime) {
     els.toggleSat.title = t(locale, "satelliteFrame", { time: formatWibClock(data.satellite.latestFrameTime) });
@@ -174,6 +183,7 @@ async function loadWind(): Promise<void> {
   }
   renderWindCard(els.windCard, wind, locale);
   windLayer.show(wind);
+  plume.setDrift(plumeDriftDeg(wind));
 }
 
 els.toggleSat.addEventListener("click", () => {

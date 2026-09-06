@@ -16,13 +16,53 @@
   --level2: #d9a400;
   --level3: #f26b1d;
   --level4: #d1242f;
+  /* Brand navy that stays fixed in both themes (badges, brand marks). */
+  --navy: #00253f;
+  /* Text and icons drawn on top of an --ink filled surface. */
+  --on-ink: #ffffff;
+  --on-ink-soft: rgba(255, 255, 255, 0.75);
+  --sea: #cfe3ee;
+  --glass: rgba(255, 255, 255, 0.92);
+  --veil: rgba(238, 240, 242, 0.96);
+  --veil-0: rgba(238, 240, 242, 0);
+  --link-map: #0078a8;
+  /* Smoke puff colour as an RGB triplet so the gradient can vary alpha. */
+  --smoke: 84, 88, 96;
   --font-ui: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --radius: 14px;
   --shadow: 0 6px 24px rgba(0, 37, 63, 0.18);
+  --shadow-up: 0 -8px 30px rgba(0, 37, 63, 0.2);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --dock-width: 100%;
+  color-scheme: light;
+}
+
+/* Dark theme. index.html sets data-theme before first paint; src/ui/theme.ts keeps it in sync. */
+:root[data-theme="dark"] {
+  --ink: #e7eef4;
+  --ink-soft: #b7c4d0;
+  --ink-mute: #8b9bab;
+  --paper: #10202f;
+  --abu: #0a1622;
+  --line: #24384a;
+  --amber-ink: #f5b455;
+  --plume-ink: #b99cf7;
+  --ok: #4cc38a;
+  --warn: #e6a23c;
+  --bad: #ef5350;
+  --on-ink: #0a1622;
+  --on-ink-soft: rgba(10, 22, 34, 0.7);
+  --sea: #181c20;
+  --glass: rgba(16, 32, 47, 0.9);
+  --veil: rgba(10, 22, 34, 0.94);
+  --veil-0: rgba(10, 22, 34, 0);
+  --link-map: #7cc4e8;
+  --smoke: 200, 206, 214;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+  --shadow-up: 0 -8px 30px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -40,36 +80,69 @@ button { font: inherit; color: inherit; }
 a { color: var(--ink); }
 :focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
 
-#map { position: fixed; inset: 0; background: #cfe3ee; }
+#map { position: fixed; inset: 0; background: var(--sea); }
 .leaflet-container { font-family: var(--font-ui); }
-.leaflet-control-attribution { font-size: 10px; background: rgba(255, 255, 255, 0.75) !important; }
+.leaflet-container a { color: var(--link-map); }
+.leaflet-control-attribution { font-size: 10px; background: var(--glass) !important; color: var(--ink-mute); }
 .leaflet-popup-content { margin: 12px 14px; font-size: 14px; line-height: 1.4; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--paper); color: var(--ink); }
 .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: var(--shadow); }
-.leaflet-tooltip.wind-tip { font-family: var(--font-data); font-size: 12px; padding: 4px 8px; border-radius: 8px; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--ink-mute); }
+.leaflet-tooltip.wind-tip { font-family: var(--font-data); font-size: 12px; padding: 4px 8px; border-radius: 8px; background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.wind-tip.leaflet-tooltip-top::before { border-top-color: var(--paper); }
 
 /* Volcano marker: a solid cone dot with a pulsing amber ring. */
 .volcano-marker { position: relative; width: 22px; height: 22px; }
 .volcano-marker::before,
 .volcano-marker::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
-.volcano-marker::before { background: var(--ink); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--amber); }
+.volcano-marker::before { background: var(--navy); border: 3px solid var(--paper); box-shadow: 0 0 0 2px var(--amber); }
 .volcano-marker::after { border: 2px solid var(--amber); animation: pulse 2.4s ease-out infinite; }
 @keyframes pulse {
   0% { transform: scale(1); opacity: 0.9; }
   100% { transform: scale(3.2); opacity: 0; }
 }
-.user-marker { width: 16px; height: 16px; border-radius: 50%; background: #1e88e5; border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.5); }
+
+/* Smoke plume: soft puffs that spread downwind from the crater.
+   --dx/--dy (unit screen vector, set by src/map/plume.ts) point where the ash travels; both default to 0
+   so the puffs only swell in place until wind data arrives. --j gives each puff its own sideways offset. */
+.plume { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: -1; }
+.plume i {
+  --j: 0;
+  --s: 2.6;
+  --px: calc(var(--dx, 0) * 84 + var(--dy, 0) * -1 * var(--j) * 22);
+  --py: calc(var(--dy, 0) * 84 + var(--dx, 0) * var(--j) * 22);
+  position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--smoke), 0.78) 0%, rgba(var(--smoke), 0.38) 45%, rgba(var(--smoke), 0) 72%);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: puff 5.6s linear infinite;
+}
+.plume i:nth-child(2) { animation-delay: -0.8s; --j: 0.6; --s: 2.3; }
+.plume i:nth-child(3) { animation-delay: -1.6s; --j: -0.5; --s: 2.8; }
+.plume i:nth-child(4) { animation-delay: -2.4s; --j: 0.9; --s: 2.4; }
+.plume i:nth-child(5) { animation-delay: -3.2s; --j: -0.85; --s: 3; }
+.plume i:nth-child(6) { animation-delay: -4s; --j: 0.3; --s: 2.5; }
+.plume i:nth-child(7) { animation-delay: -4.8s; --j: -0.2; --s: 2.7; }
+@keyframes puff {
+  0% { transform: translate(0, 0) scale(0.25); opacity: 0; }
+  8% { opacity: 0.85; }
+  100% { transform: translate(calc(var(--px) * 1px), calc(var(--py) * 1px)) scale(var(--s)); opacity: 0; }
+}
+.volcano-marker--quiet .plume { display: none; }
+
+.user-marker { width: 16px; height: 16px; border-radius: 50%; background: #1e88e5; border: 3px solid var(--paper); box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.5); }
 
 /* Top bar */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 900;
   display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
   padding: calc(10px + var(--safe-top)) 12px 10px;
-  background: linear-gradient(to bottom, rgba(238, 240, 242, 0.96) 60%, rgba(238, 240, 242, 0));
+  background: linear-gradient(to bottom, var(--veil) 60%, var(--veil-0));
   pointer-events: none;
 }
 .topbar > * { pointer-events: auto; }
 .topbar__title { display: flex; align-items: center; gap: 10px; background: var(--paper); padding: 8px 14px 8px 10px; border-radius: 999px; box-shadow: var(--shadow); }
-.topbar__mark { width: 14px; height: 14px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--amber); flex: none; }
+.topbar__mark { width: 14px; height: 14px; border-radius: 50%; background: var(--navy); box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--amber); flex: none; }
 .topbar h1 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.15; }
 .freshness { margin: 2px 0 0; font-family: var(--font-data); font-size: 11px; color: var(--ink-mute); display: flex; align-items: center; gap: 6px; }
 .freshness::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
@@ -90,17 +163,19 @@ a { color: var(--ink); }
 .map-controls { position: fixed; right: 12px; top: calc(84px + var(--safe-top)); z-index: 850; display: flex; flex-direction: column; gap: 8px; }
 .ctl { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--paper); box-shadow: var(--shadow); display: grid; place-items: center; cursor: pointer; color: var(--ink); }
 .ctl svg { width: 22px; height: 22px; fill: currentColor; }
-.ctl[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.ctl[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
 .ctl.busy { animation: spin 1.2s linear infinite; }
+/* The theme button is a plain toggle, so its pressed state keeps the resting look. */
+.ctl--theme[aria-pressed="true"] { background: var(--paper); color: var(--ink); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Legend */
-.legend { position: fixed; left: 12px; bottom: calc(190px + var(--safe-bottom)); z-index: 840; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(6px); padding: 8px 10px; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; display: grid; gap: 4px; }
+.legend { position: fixed; left: 12px; bottom: calc(190px + var(--safe-bottom)); z-index: 840; background: var(--glass); backdrop-filter: blur(6px); padding: 8px 10px; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; display: grid; gap: 4px; }
 .legend__row { display: flex; align-items: center; gap: 8px; }
 .legend__swatch { width: 16px; height: 12px; border-radius: 3px; flex: none; border: 1.5px solid; }
 .legend__swatch--low { background: rgba(224, 138, 30, 0.45); border-color: var(--amber); }
 .legend__swatch--high { background: repeating-linear-gradient(135deg, rgba(109, 40, 217, 0.55) 0 2px, rgba(109, 40, 217, 0.12) 2px 5px); border-color: var(--plume); }
-.legend__swatch--volcano { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); border-color: var(--amber); margin: 0 2px; }
+.legend__swatch--volcano { width: 12px; height: 12px; border-radius: 50%; background: var(--navy); border-color: var(--amber); margin: 0 2px; }
 .legend__alt { font-family: var(--font-data); color: var(--ink-mute); font-size: 11px; }
 .sheet--expanded ~ .legend, body.sheet-open .legend { display: none; }
 
@@ -113,12 +188,12 @@ a { color: var(--ink); }
 .chip { flex: 1 0 auto; min-width: 72px; min-height: 48px; border: 0; border-radius: 12px; background: var(--paper); box-shadow: var(--shadow); padding: 6px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; transition: background 0.15s, color 0.15s; }
 .chip__label { font-weight: 700; font-size: 13px; line-height: 1.1; }
 .chip__time { font-family: var(--font-data); font-size: 11px; color: var(--ink-mute); }
-.chip[aria-selected="true"] { background: var(--ink); color: #fff; }
-.chip[aria-selected="true"] .chip__time { color: rgba(255, 255, 255, 0.75); }
+.chip[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }
+.chip[aria-selected="true"] .chip__time { color: var(--on-ink-soft); }
 .chip--play { flex: 0 0 auto; min-width: 48px; }
 .chip--play svg { width: 18px; height: 18px; fill: currentColor; }
 
-.sheet { min-height: 0; background: var(--paper); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 30px rgba(0, 37, 63, 0.2); padding-bottom: var(--safe-bottom); max-height: calc(78vh - var(--safe-bottom)); display: flex; flex-direction: column; transition: max-height 0.25s ease; }
+.sheet { min-height: 0; background: var(--paper); border-radius: 18px 18px 0 0; box-shadow: var(--shadow-up); padding-bottom: var(--safe-bottom); max-height: calc(78vh - var(--safe-bottom)); display: flex; flex-direction: column; transition: max-height 0.25s ease; }
 .sheet--collapsed { max-height: 136px; }
 .sheet__handle { width: 100%; border: 0; background: transparent; padding: 10px 0 4px; cursor: pointer; touch-action: none; }
 .sheet__grip { display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto; }
@@ -132,7 +207,7 @@ a { color: var(--ink); }
 .status__row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; }
 .badge--level1 { background: var(--level1); }
-.badge--level2 { background: var(--level2); color: var(--ink); }
+.badge--level2 { background: var(--level2); color: var(--navy); }
 .badge--level3 { background: var(--level3); }
 .badge--level4 { background: var(--level4); }
 .badge--vona { background: var(--abu); color: var(--ink); text-transform: none; font-weight: 700; }
@@ -166,7 +241,7 @@ a { color: var(--ink); }
 .wind-row__dir { color: var(--ink-soft); font-size: 12.5px; }
 
 .btn { border: 0; border-radius: 12px; min-height: 46px; padding: 10px 16px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.btn--primary { background: var(--ink); color: #fff; }
+.btn--primary { background: var(--ink); color: var(--on-ink); }
 .btn--primary:disabled { opacity: 0.6; cursor: default; }
 .btn--ghost { background: var(--abu); color: var(--ink); }
 .btn svg { width: 18px; height: 18px; fill: currentColor; }
@@ -192,6 +267,7 @@ a { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
   .volcano-marker::after { animation: none; }
+  .plume { display: none; }
   .sheet, .chip { transition: none; }
 }
 
