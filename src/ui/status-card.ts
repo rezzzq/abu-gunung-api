@@ -1,6 +1,6 @@
 import { STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
 import { compassName, levelLabel, t, vonaColorLabel, type Locale } from "../i18n";
-import { formatAltitude } from "../lib/flight-level";
+import { formatAltitude, formatKm } from "../lib/flight-level";
 import type { AshLayer, LatestData } from "../lib/schema";
 import { formatRelative, formatWib, minutesBetween } from "../lib/time";
 import { isHighLayer, type TimeStep } from "../map/ash-layer";
@@ -21,14 +21,28 @@ export function renderFreshness(el: HTMLElement, generatedAt: string, now: Date,
 function headlineFor(layers: AshLayer[], locale: Locale): string {
   if (!layers.length) return "";
   const top = layers.reduce((a, b) => (b.topFl > a.topFl ? b : a));
-  const parts = [t(locale, "ashTop", { alt: formatAltitude(top.topFl, locale) })];
+  const parts = [t(locale, "ashTop", { alt: formatKm(top.topFl, locale) })];
   if (top.movement) parts.push(t(locale, "ashTowards", { dir: compassName(locale, top.movement.direction) }));
   return parts.join(", ");
 }
 
-export function renderStatus(el: HTMLElement, data: LatestData, locale: Locale): void {
-  const badges: string[] = [];
+/**
+ * The peek shows one line: the PVMBG level as a small pill and the ash headline.
+ * Everything else about the advisory and the VONA goes to the detail card in the sheet body.
+ */
+export function renderStatus(peek: HTMLElement, detail: HTMLElement, data: LatestData, locale: Locale): void {
   const level = data.magma?.activityLevel;
+  const pill = level ? `<span class="level level--${level.level}">${escapeHtml(level.name)}</span>` : "";
+  const adv = data.vaac;
+  const headline = adv?.observation ? headlineFor(adv.observation.layers, locale) : "";
+  if (headline || pill) {
+    peek.innerHTML = `<p class="status__headline">${pill}${escapeHtml(headline)}</p>`;
+  } else {
+    peek.innerHTML = `<p class="status__empty">${t(locale, "noAdvisory")}</p>`;
+  }
+
+  const lines: string[] = [];
+  const badges: string[] = [];
   if (level) {
     badges.push(`<span class="badge badge--level${level.level}">${escapeHtml(levelLabel(locale, level.level, level.name))}</span>`);
   }
@@ -40,13 +54,8 @@ export function renderStatus(el: HTMLElement, data: LatestData, locale: Locale):
       `<span class="badge badge--vona" title="${escapeHtml(vona.title)}"><span class="badge__dot badge__dot--${known}"></span>VONA ${escapeHtml(vonaColorLabel(locale, vona.colorCode))}</span>`,
     );
   }
-
-  const adv = data.vaac;
-  const lines: string[] = [];
   if (badges.length) lines.push(`<div class="status__row">${badges.join("")}</div>`);
-  if (adv?.observation) {
-    const headline = headlineFor(adv.observation.layers, locale);
-    if (headline) lines.push(`<p class="status__headline">${escapeHtml(headline)}</p>`);
+  if (adv) {
     const meta: string[] = [];
     if (adv.advisoryNumber) meta.push(t(locale, "advisoryNo", { n: adv.advisoryNumber }));
     meta.push(t(locale, "issued", { time: formatWib(adv.issuedAt, locale) }));
@@ -54,8 +63,8 @@ export function renderStatus(el: HTMLElement, data: LatestData, locale: Locale):
     if (adv.nextAdvisoryBy) {
       lines.push(`<p class="status__meta">${escapeHtml(t(locale, "nextAdvisory", { time: formatWib(adv.nextAdvisoryBy, locale) }))}</p>`);
     }
-  } else if (!adv) {
-    lines.push(`<p class="status__empty">${t(locale, "noAdvisory")}</p><p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`);
+  } else {
+    lines.push(`<p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`);
   }
   if (vona?.text) {
     const stamp = `VONA ${formatWib(vona.time, locale)}`;
@@ -64,10 +73,10 @@ export function renderStatus(el: HTMLElement, data: LatestData, locale: Locale):
     );
   }
   if (data.sourceErrors.length) lines.push(`<p class="status__warn">${t(locale, "sourceWarn")}</p>`);
-  el.innerHTML = lines.join("");
+  detail.innerHTML = `<h2>${t(locale, "statusTitle")}</h2>${lines.join("")}`;
 
-  const more = el.querySelector<HTMLButtonElement>("#vona-more");
-  const text = el.querySelector<HTMLElement>("#vona-text");
+  const more = detail.querySelector<HTMLButtonElement>("#vona-more");
+  const text = detail.querySelector<HTMLElement>("#vona-text");
   if (more && text) {
     more.addEventListener("click", () => {
       const clamped = text.classList.toggle("clamped");
@@ -98,14 +107,16 @@ export function renderStepInfo(el: HTMLElement, step: TimeStep | null, locale: L
   el.innerHTML = `<p class="step-info__title">${escapeHtml(step.description)}</p>${rows.join("")}${empty}`;
 }
 
-export function renderLegend(el: HTMLElement, step: TimeStep | null, locale: Locale): void {
+/** `compact` gives the one-line version for the sheet peek: kilometres only and no volcano row. */
+export function renderLegend(el: HTMLElement, step: TimeStep | null, locale: Locale, compact = false): void {
   const rows: string[] = [];
   const low = step?.layers.filter((l) => !isHighLayer(l)) ?? [];
   const high = step?.layers.filter(isHighLayer) ?? [];
-  const topOf = (layers: AshLayer[]): string => formatAltitude(Math.max(...layers.map((l) => l.topFl)), locale);
+  const format = compact ? formatKm : formatAltitude;
+  const topOf = (layers: AshLayer[]): string => format(Math.max(...layers.map((l) => l.topFl)), locale);
   if (low.length) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--low"></span><span>${t(locale, "layerLow")} <span class="legend__alt">≤ ${escapeHtml(topOf(low))}</span></span></div>`);
   if (high.length) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--high"></span><span>${t(locale, "layerHigh")} <span class="legend__alt">≤ ${escapeHtml(topOf(high))}</span></span></div>`);
-  rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--volcano"></span><span>${t(locale, "legendVolcano")}</span></div>`);
+  if (!compact) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--volcano"></span><span>${t(locale, "legendVolcano")}</span></div>`);
   el.innerHTML = rows.join("");
 }
 

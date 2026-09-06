@@ -47,7 +47,6 @@
           <p id="freshness" class="freshness" aria-live="polite"></p>
         </div>
       </div>
-      <button id="lang" class="topbar__lang" type="button" lang="en">EN</button>
     </header>
 
     <div id="banner" class="banner" hidden>
@@ -65,31 +64,38 @@
       <button id="locate" class="ctl" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v3m0 14v3M2 12h3m14 0h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.2"/></svg>
       </button>
-      <button id="toggle-theme" class="ctl ctl--theme" type="button" aria-pressed="false"></button>
     </div>
 
     <div class="legend" id="legend" aria-label="Keterangan"></div>
 
     <div class="dock">
-      <div id="time-chips" class="chips" role="tablist"></div>
       <section id="sheet" class="sheet sheet--collapsed" aria-label="Rincian">
         <button id="sheet-handle" class="sheet__handle" type="button" aria-expanded="false">
           <span class="sheet__grip" aria-hidden="true"></span>
         </button>
-        <div class="sheet__scroll">
-        <div id="status" class="status"></div>
-        <div class="sheet__body">
-          <div id="step-info" class="step-info"></div>
-          <section class="card" id="wind-card" aria-live="polite"></section>
-          <section class="card card--location">
-            <button id="check-location" class="btn btn--primary" type="button"></button>
-            <p id="location-result" class="location-result" aria-live="polite"></p>
-          </section>
-          <section class="card" id="safety"></section>
-          <section class="card" id="links"></section>
-          <button id="share" class="btn btn--ghost" type="button"></button>
-          <footer class="footer" id="footer"></footer>
+        <div id="time-chips" class="segments" role="tablist"></div>
+        <div class="sheet__peek">
+          <div id="status" class="status"></div>
+          <div id="peek-legend" class="peek-legend" aria-label="Keterangan"></div>
         </div>
+        <div class="sheet__scroll">
+          <div class="sheet__body">
+            <div id="step-info" class="step-info"></div>
+            <section class="card card--location">
+              <button id="check-location" class="btn btn--primary" type="button"></button>
+              <p id="location-result" class="location-result" aria-live="polite"></p>
+            </section>
+            <section class="card" id="wind-card" aria-live="polite"></section>
+            <section class="card" id="status-detail"></section>
+            <section class="card" id="safety"></section>
+            <section class="card" id="links"></section>
+            <div class="prefs">
+              <button id="toggle-theme" class="pref" type="button" aria-pressed="false"></button>
+              <button id="lang" class="pref" type="button" lang="en"></button>
+            </div>
+            <button id="share" class="btn btn--ghost" type="button"></button>
+            <footer class="footer" id="footer"></footer>
+          </div>
         </div>
       </section>
     </div>

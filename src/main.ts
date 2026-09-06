@@ -5,11 +5,9 @@ import { DATA_URL, LINKS, REFRESH_MS, VOLCANO, WIND_REFRESH_MS } from "./config"
 import { getLocale, setLocale, t, type Locale } from "./i18n";
 import { latestDataSchema, type LatestData } from "./lib/schema";
 import { formatWibClock } from "./lib/time";
-import { plumeDriftDeg } from "./lib/plume";
 import { AshLayer, type TimeStep } from "./map/ash-layer";
 import { Basemap } from "./map/basemap";
 import { createMap } from "./map/map";
-import { Plume } from "./map/plume";
 import { SatelliteLayer } from "./map/satellite-layer";
 import { fetchWind, renderWindCard, WindLayer, type WindReport } from "./map/wind";
 import { initLocationCheck } from "./ui/location-check";
@@ -42,10 +40,12 @@ const els = {
   toggleTheme: byId<HTMLButtonElement>("toggle-theme"),
   locate: byId<HTMLButtonElement>("locate"),
   legend: byId<HTMLDivElement>("legend"),
+  peekLegend: byId<HTMLDivElement>("peek-legend"),
   chips: byId<HTMLDivElement>("time-chips"),
   sheet: byId<HTMLElement>("sheet"),
   sheetHandle: byId<HTMLButtonElement>("sheet-handle"),
   status: byId<HTMLDivElement>("status"),
+  statusDetail: byId<HTMLElement>("status-detail"),
   stepInfo: byId<HTMLDivElement>("step-info"),
   windCard: byId<HTMLElement>("wind-card"),
   checkLocation: byId<HTMLButtonElement>("check-location"),
@@ -58,8 +58,7 @@ const els = {
 
 // Static copy
 els.title.textContent = t(locale, "appTitle");
-els.lang.textContent = locale === "id" ? "EN" : "ID";
-els.lang.setAttribute("aria-label", t(locale, "language"));
+els.lang.textContent = t(locale, "language");
 els.lang.lang = locale === "id" ? "en" : "id";
 els.bannerRetry.textContent = t(locale, "retry");
 els.toggleSat.setAttribute("aria-label", t(locale, "satellite"));
@@ -84,14 +83,19 @@ els.lang.addEventListener("click", () => {
 });
 
 // Map and layers
-const { map, volcano } = createMap(els.map, `<strong>${VOLCANO.name}</strong><br>${VOLCANO.elevationM} m`);
+const map = createMap(els.map, `<strong>${VOLCANO.name}</strong><br>${VOLCANO.elevationM} m`);
 const basemap = new Basemap(map);
-initTheme(els.toggleTheme, locale, (theme) => basemap.setTheme(theme));
-const plume = new Plume(volcano);
 const ashLayer = new AshLayer(map, (layer) => layerPopupHtml(layer, locale));
+initTheme(els.toggleTheme, locale, (theme) => {
+  basemap.setTheme(theme);
+  ashLayer.refreshTheme();
+});
 const satellite = new SatelliteLayer(map);
 const windLayer = new WindLayer(map, locale);
 const sheet = initSheet(els.sheet, els.sheetHandle, locale);
+new ResizeObserver(([entry]) => {
+  if (entry) document.documentElement.style.setProperty("--sheet-h", `${Math.round(entry.contentRect.height)}px`);
+}).observe(els.sheet);
 initShare(els.share, locale);
 
 let steps: TimeStep[] = [];
@@ -127,14 +131,14 @@ function showStep(i: number): void {
   ashLayer.show(step);
   renderStepInfo(els.stepInfo, step, locale);
   renderLegend(els.legend, step, locale);
+  renderLegend(els.peekLegend, step, locale, true);
   locationCheck.refresh();
 }
 
 function applyData(data: LatestData): void {
   const previousHeader = latest?.vaac?.header;
   latest = data;
-  renderStatus(els.status, data, locale);
-  plume.setActive(data.vaac !== null);
+  renderStatus(els.status, els.statusDetail, data, locale);
   renderFreshness(els.freshness, data.generatedAt, new Date(), locale);
   if (data.satellite?.latestFrameTime) {
     els.toggleSat.title = t(locale, "satelliteFrame", { time: formatWibClock(data.satellite.latestFrameTime) });
@@ -183,7 +187,7 @@ async function loadWind(): Promise<void> {
   }
   renderWindCard(els.windCard, wind, locale);
   windLayer.show(wind);
-  plume.setDrift(plumeDriftDeg(wind));
+  ashLayer.setWind(wind);
 }
 
 els.toggleSat.addEventListener("click", () => {

@@ -21,9 +21,11 @@ Bahasa Indonesia is the default language; English is one tap away.
 - A "check my location" button that reports the distance to the crater and
   whether the phone's position is inside the forecast ash area.
 - Short safety tips and links to the official sources.
-- An animated smoke plume on the crater that drifts the way the highest
-  available wind is carrying the ash. It is hidden when no advisory is active
-  and when the device asks for reduced motion.
+- The ash areas are drawn as soft, slowly drifting smoke on a canvas rather
+  than flat polygons. Density fades to nothing at the true advisory boundary
+  and never spills past it; a thin outline marks the exact edge. The texture
+  drifts the way the advisory says the layer is moving, or with the wind when
+  the advisory gives no direction. The drift is frozen under reduced motion.
 - Light and dark themes. The page follows the system setting until the user
   taps the sun/moon button; the choice is remembered on the device. Dark mode
   swaps the Esri World Topo basemap for the Esri Dark Gray Canvas tiles.

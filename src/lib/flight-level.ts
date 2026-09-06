@@ -11,10 +11,15 @@ export function flightLevelToMetres(fl: number): number {
   return Math.round(flightLevelToFeet(fl) * METRES_PER_FOOT);
 }
 
+/** Short altitude for headlines, e.g. "15,2 km" or "15.2 km". */
+export function formatKm(fl: number, locale: Locale): string {
+  const km = (flightLevelToMetres(fl) / 1000).toFixed(1);
+  return `${locale === "id" ? km.replace(".", ",") : km} km`;
+}
+
 /** Human readable altitude, e.g. "15,2 km (50.000 kaki)" or "15.2 km (50,000 ft)". */
 export function formatAltitude(fl: number, locale: Locale): string {
-  const km = (flightLevelToMetres(fl) / 1000).toFixed(1);
   const feet = flightLevelToFeet(fl);
-  if (locale === "id") return `${km.replace(".", ",")} km (${feet.toLocaleString("id-ID")} kaki)`;
-  return `${km} km (${feet.toLocaleString("en-US")} ft)`;
+  if (locale === "id") return `${formatKm(fl, locale)} (${feet.toLocaleString("id-ID")} kaki)`;
+  return `${formatKm(fl, locale)} (${feet.toLocaleString("en-US")} ft)`;
 }

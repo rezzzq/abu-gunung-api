@@ -79,9 +79,10 @@ export function initTimeChips(
   steps.forEach((step, i) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "chip";
+    b.className = "segment";
     b.setAttribute("role", "tab");
-    b.innerHTML = `<span class="chip__label">${step.label}</span><span class="chip__time">${formatWibClock(step.time)}</span>`;
+    b.textContent = step.label;
+    b.title = `${formatWibClock(step.time)} WIB`;
     b.addEventListener("click", () => {
       stop();
       setIndex(i);
@@ -100,7 +101,7 @@ export function initTimeChips(
 
   const playButton = document.createElement("button");
   playButton.type = "button";
-  playButton.className = "chip chip--play";
+  playButton.className = "segment segment--play";
   playButton.addEventListener("click", () => {
     if (timer !== null) stop();
     else start();

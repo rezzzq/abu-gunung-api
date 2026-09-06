@@ -42,12 +42,10 @@ export function initTheme(button: HTMLButtonElement, locale: Locale, onChange: (
     document.documentElement.dataset.theme = next;
     if (meta) meta.content = THEME_COLOR[next];
     button.setAttribute("aria-pressed", String(next === "dark"));
-    button.innerHTML = next === "dark" ? SUN_ICON : MOON_ICON;
+    button.innerHTML = `${next === "dark" ? SUN_ICON : MOON_ICON}<span>${t(locale, "themeToggle")}</span>`;
     onChange(next);
   };
 
-  button.setAttribute("aria-label", t(locale, "themeToggle"));
-  button.title = t(locale, "themeToggle");
   button.addEventListener("click", () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     writeStored(next);
