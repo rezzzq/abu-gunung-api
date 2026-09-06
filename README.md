@@ -1,27 +1,33 @@
-# Sebaran Abu Krakatau
+# Sebaran Abu Gunung Api
 
-A mobile-first web map that shows where volcanic ash from Anak Krakatau is now
-and where it is forecast to be over the next 18 hours. Built as a free,
-ad-free public service so people across Indonesia can check the latest picture
-and share one link.
+A mobile-first web map that shows where volcanic ash from Indonesia's erupting
+volcanoes is now and where it is forecast to be over the next 18 hours. Built
+as a free, ad-free public service so people across Indonesia can check the
+latest picture and share one link. It started as a Krakatau-only map during
+the September 2026 eruption.
 
 Bahasa Indonesia is the default language; English is one tap away.
 
 ## What it shows
 
-- Ash cloud polygons from the Darwin Volcanic Ash Advisory Centre (VAAC) for
-  the observed time and the +6, +12 and +18 hour forecasts, coloured by
-  altitude band (amber for low ash, hatched purple for high ash).
+- Every volcano with an active Darwin Volcanic Ash Advisory Centre (VAAC)
+  advisory, plus PVMBG Level III and IV volcanoes as markers. A strip of chips
+  in the sheet and the markers on the map select a volcano; the link carries
+  the selection as `?g=<code>` (MAGMA VONA code, e.g. `?g=SMR`).
+- Ash cloud polygons from the VAAC for the selected volcano: the observed time
+  and the +6, +12 and +18 hour forecasts, coloured by altitude band (amber for
+  low ash, hatched purple for high ash). Other active volcanoes show their
+  current zone as a dashed outline.
 - PVMBG alert level and the latest VONA (Volcano Observatory Notice for
-  Aviation) from MAGMA Indonesia.
+  Aviation) per volcano from MAGMA Indonesia.
 - Two satellite views of Himawari-9 behind one control: the JMA "Ash RGB"
   composite, rendered by this project from the raw 2 km data every run
   (possible ash shows pink, high ice cloud dark, low cloud tan), and the clean
   infrared tiles from NASA GIBS. Both refresh every ten minutes at the source.
-- Wind at four heights above the crater from Open-Meteo, as a card and as
-  arrows on the map showing where ash is heading.
-- A "check my location" button that reports the distance to the crater and
-  whether the phone's position is inside the forecast ash area.
+- Wind at four heights above the selected crater from Open-Meteo, as a card
+  and as arrows on the map showing where ash is heading.
+- A "check my location" button that reports the distance to the selected
+  volcano and whether the phone's position is inside its forecast ash area.
 - Short safety tips and links to the official sources.
 - Light and dark themes. The page follows the system setting until the user
   taps the sun/moon button; the choice is remembered on the device. Dark mode
@@ -31,10 +37,14 @@ Bahasa Indonesia is the default language; English is one tap away.
 
 ```
 scripts/fetch-data.ts  (every 15 min in CI)
-  -> Darwin VAAC bulletins via the NOAA mirror  (text, parsed in src/lib/vaa-parser.ts)
-  -> MAGMA Indonesia pages                      (HTML, parsed in src/lib/magma-parser.ts)
-  -> NASA GIBS capabilities                     (latest Himawari frame time)
-  -> public/data/latest.json                    (validated by src/lib/schema.ts)
+  -> all eight Darwin VAAC bulletins via the NOAA mirror  (text, parsed in src/lib/vaa-parser.ts)
+  -> MAGMA Indonesia level table and all-volcano VONA page (HTML, parsed in src/lib/magma-parser.ts)
+  -> NASA GIBS capabilities                               (latest Himawari frame time)
+  -> public/data/latest.json  one entry per volcano       (assembled in src/lib/build-latest.ts,
+                                                           validated by src/lib/schema.ts)
+
+Volcano identities, MAGMA codes and fallback positions live in
+src/lib/volcanoes.ts; an advisory's own position wins when present.
 
 scripts/ash_rgb.py     (every 15 min in CI, Python)
   -> raw Himawari-9 bands 8.6/10.4/12.4 um from the NOAA open-data bucket
@@ -49,9 +59,10 @@ browser
 If the Himawari step fails, it records the error in the JSON and keeps the
 previous image; the satellite control then skips the Ash RGB view.
 
-If a source is down, the script keeps the previous advisory and records the
-problem in `sourceErrors`; the page shows a small warning instead of a blank
-map.
+If the VAAC mirror is down, the script keeps the previous volcano list; if
+MAGMA is down it keeps the previous levels and VONAs. Either way it records
+the problem in `sourceErrors` and the page shows a small warning instead of a
+blank map.
 
 ## Run it locally
 

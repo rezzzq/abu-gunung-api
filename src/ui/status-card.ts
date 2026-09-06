@@ -1,7 +1,7 @@
 import { RGB_STALE_MIN, STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
 import { compassName, levelLabel, t, vonaColorLabel, type Locale } from "../i18n";
 import { formatAltitude, formatKm } from "../lib/flight-level";
-import type { AshLayer, HimawariRgb, LatestData } from "../lib/schema";
+import type { AshLayer, HimawariRgb, VolcanoStatus } from "../lib/schema";
 import { formatRelative, formatWib, formatWibClock, minutesBetween } from "../lib/time";
 import { isHighLayer, type TimeStep } from "../map/ash-layer";
 
@@ -27,18 +27,30 @@ function headlineFor(layers: AshLayer[], locale: Locale): string {
 }
 
 /**
- * The peek shows one line: the PVMBG level as a small pill and the ash headline.
+ * The peek shows one line: the PVMBG level as a small pill, the volcano name and the ash headline.
  * Everything else about the advisory and the VONA goes to the detail card in the sheet body.
  */
-export function renderStatus(peek: HTMLElement, detail: HTMLElement, data: LatestData, locale: Locale): void {
-  const level = data.magma?.activityLevel;
+export function renderStatus(
+  peek: HTMLElement,
+  detail: HTMLElement,
+  volcano: VolcanoStatus | null,
+  sourceErrors: string[],
+  locale: Locale,
+): void {
+  if (!volcano) {
+    peek.innerHTML = `<p class="status__empty">${t(locale, "noVolcanoes")}</p>`;
+    detail.innerHTML = `<h2>${t(locale, "statusTitle")}</h2><p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`;
+    return;
+  }
+  const level = volcano.activityLevel;
   const pill = level ? `<span class="level level--${level.level}">${escapeHtml(level.name)}</span>` : "";
-  const adv = data.vaac;
+  const adv = volcano.active ? volcano.vaac : null;
   const headline = adv?.observation ? headlineFor(adv.observation.layers, locale) : "";
-  if (headline || pill) {
-    peek.innerHTML = `<p class="status__headline">${pill}${escapeHtml(headline)}</p>`;
+  const name = escapeHtml(volcano.name);
+  if (headline) {
+    peek.innerHTML = `<p class="status__headline">${pill}${name}: ${escapeHtml(headline)}</p>`;
   } else {
-    peek.innerHTML = `<p class="status__empty">${t(locale, "noAdvisory")}</p>`;
+    peek.innerHTML = `<p class="status__headline">${pill}${name}</p><p class="status__empty">${escapeHtml(t(locale, "noAdvisory", { name: volcano.name }))}</p>`;
   }
 
   const lines: string[] = [];
@@ -46,7 +58,7 @@ export function renderStatus(peek: HTMLElement, detail: HTMLElement, data: Lates
   if (level) {
     badges.push(`<span class="badge badge--level${level.level}">${escapeHtml(levelLabel(locale, level.level, level.name))}</span>`);
   }
-  const vona = data.magma?.latestVona;
+  const vona = volcano.latestVona;
   if (vona) {
     const color = vona.colorCode.toLowerCase();
     const known = ["red", "orange", "yellow", "green"].includes(color) ? color : "unknown";
@@ -55,13 +67,15 @@ export function renderStatus(peek: HTMLElement, detail: HTMLElement, data: Lates
     );
   }
   if (badges.length) lines.push(`<div class="status__row">${badges.join("")}</div>`);
-  if (adv) {
+  const last = volcano.vaac;
+  if (last) {
     const meta: string[] = [];
-    if (adv.advisoryNumber) meta.push(t(locale, "advisoryNo", { n: adv.advisoryNumber }));
-    meta.push(t(locale, "issued", { time: formatWib(adv.issuedAt, locale) }));
+    if (last.advisoryNumber) meta.push(t(locale, "advisoryNo", { n: last.advisoryNumber }));
+    meta.push(t(locale, "issued", { time: formatWib(last.issuedAt, locale) }));
     lines.push(`<p class="status__meta">${escapeHtml(meta.join(" · "))}</p>`);
-    if (adv.nextAdvisoryBy) {
-      lines.push(`<p class="status__meta">${escapeHtml(t(locale, "nextAdvisory", { time: formatWib(adv.nextAdvisoryBy, locale) }))}</p>`);
+    if (!volcano.active) lines.push(`<p class="status__meta">${t(locale, "advisoryEnded")}</p>`);
+    else if (last.nextAdvisoryBy) {
+      lines.push(`<p class="status__meta">${escapeHtml(t(locale, "nextAdvisory", { time: formatWib(last.nextAdvisoryBy, locale) }))}</p>`);
     }
   } else {
     lines.push(`<p class="status__meta">${t(locale, "noAdvisoryHint")}</p>`);
@@ -72,7 +86,7 @@ export function renderStatus(peek: HTMLElement, detail: HTMLElement, data: Lates
       `<p class="vona-text clamped" id="vona-text"><b>${escapeHtml(stamp)}:</b> ${escapeHtml(vona.text)}</p><button type="button" class="linklike" id="vona-more">${t(locale, "readMore")}</button>`,
     );
   }
-  if (data.sourceErrors.length) lines.push(`<p class="status__warn">${t(locale, "sourceWarn")}</p>`);
+  if (sourceErrors.length) lines.push(`<p class="status__warn">${t(locale, "sourceWarn")}</p>`);
   detail.innerHTML = `<h2>${t(locale, "statusTitle")}</h2>${lines.join("")}`;
 
   const more = detail.querySelector<HTMLButtonElement>("#vona-more");
@@ -108,7 +122,7 @@ export function renderStepInfo(el: HTMLElement, step: TimeStep | null, locale: L
 }
 
 /** `compact` gives the one-line version for the sheet peek: kilometres only and no volcano row. */
-export function renderLegend(el: HTMLElement, step: TimeStep | null, locale: Locale, compact = false): void {
+export function renderLegend(el: HTMLElement, step: TimeStep | null, locale: Locale, compact = false, volcanoName?: string): void {
   const rows: string[] = [];
   const low = step?.layers.filter((l) => !isHighLayer(l)) ?? [];
   const high = step?.layers.filter(isHighLayer) ?? [];
@@ -116,7 +130,7 @@ export function renderLegend(el: HTMLElement, step: TimeStep | null, locale: Loc
   const topOf = (layers: AshLayer[]): string => format(Math.max(...layers.map((l) => l.topFl)), locale);
   if (low.length) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--low"></span><span>${t(locale, "layerLow")} <span class="legend__alt">≤ ${escapeHtml(topOf(low))}</span></span></div>`);
   if (high.length) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--high"></span><span>${t(locale, "layerHigh")} <span class="legend__alt">≤ ${escapeHtml(topOf(high))}</span></span></div>`);
-  if (!compact) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--volcano"></span><span>${t(locale, "legendVolcano")}</span></div>`);
+  if (!compact) rows.push(`<div class="legend__row"><span class="legend__swatch legend__swatch--volcano"></span><span>${escapeHtml(volcanoName ?? t(locale, "legendVolcano"))}</span></div>`);
   el.innerHTML = rows.join("");
 }
 

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { decodeEntities, parseActivityLevel, parseLatestVona } from "../src/lib/magma-parser";
+import { decodeEntities, latestVonaFor, parseActivityLevel, parseActivityLevels, parseLatestVona, parseVonas } from "../src/lib/magma-parser";
 
 const levelHtml = readFileSync(new URL("./fixtures/magma-level.html", import.meta.url), "utf8");
 const vonaHtml = readFileSync(new URL("./fixtures/magma-vona.html", import.meta.url), "utf8");
@@ -59,5 +59,31 @@ describe("parseLatestVona", () => {
 describe("decodeEntities", () => {
   it("decodes the common entities", () => {
     expect(decodeEntities("a &amp; b &lt;c&gt; &quot;d&quot; &#39;e&#39;&nbsp;f")).toBe("a & b <c> \"d\" 'e' f");
+  });
+});
+
+describe("parseActivityLevels", () => {
+  it("lists every volcano with its level from the table", () => {
+    const levels = parseActivityLevels(levelHtml);
+    expect(levels.get("Anak Krakatau")).toEqual({ level: 3, name: "Siaga" });
+    expect(levels.get("Lewotobi Laki-laki")).toEqual({ level: 3, name: "Siaga" });
+    expect(levels.get("Merapi")).toEqual({ level: 3, name: "Siaga" });
+    expect(levels.has("Level IV (Awas)")).toBe(false);
+  });
+});
+
+describe("parseVonas", () => {
+  it("returns every entry with its volcano name, newest first", () => {
+    const entries = parseVonas(vonaHtml);
+    expect(entries.length).toBeGreaterThan(1);
+    expect(entries[0]?.volcano).toBe("Anak Krakatau");
+    expect(entries[0]?.time).toBe("2026-09-05T02:00:00Z");
+    expect(entries.every((e) => e.volcano === "Anak Krakatau")).toBe(true);
+  });
+
+  it("picks the newest entry for one volcano and null for others", () => {
+    const entries = parseVonas(vonaHtml);
+    expect(latestVonaFor(entries, "Anak Krakatau")?.time).toBe("2026-09-05T02:00:00Z");
+    expect(latestVonaFor(entries, "Semeru")).toBeNull();
   });
 });

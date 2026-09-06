@@ -23,6 +23,8 @@ const MOVEMENT_RE = /MOV\s+([NSEW]{1,3})\s+(\d{1,3})\s*KT/;
 /** Leading "DD/HHMMZ" token in a forecast cloud field. */
 const DAYTIME_TOKEN_RE = /^\s*(\d{2}\/\d{4}Z)\s*/;
 const FCST_KEY_RE = /^FCST VA CLD \+(\d+)\s?HR$/;
+const PSN_RE = /([NS]\d{4}(?:\.\d+)?)\s+([EW]\d{5}(?:\.\d+)?)/;
+const ELEV_RE = /(-?\d+)\s*M/i;
 
 /** Splits a file that may hold several bulletins into one string per bulletin. */
 export function splitBulletins(text: string): string[] {
@@ -144,10 +146,17 @@ export function parseAdvisory(bulletin: string): ParseResult {
   const next = /(\d{8}\/\d{4}Z)/.exec(fields.get("NXT ADVISORY") ?? "");
   const nextDate = next ? parseDtg(next[1]!) : null;
 
+  const psn = PSN_RE.exec(fields.get("PSN") ?? "");
+  const lat = psn ? parseCoordinate(psn[1]!) : null;
+  const lon = psn ? parseCoordinate(psn[2]!) : null;
+  const elev = ELEV_RE.exec(fields.get("SOURCE ELEV") ?? "");
+
   const candidate: Advisory = {
     header,
     issuedAt: toIso(issued),
     volcano,
+    position: lat !== null && lon !== null ? { lat, lon } : null,
+    elevationM: elev ? Number(elev[1]) : null,
     advisoryNumber: fields.get("ADVISORY NR") ?? null,
     infoSource: fields.get("INFO SOURCE") ?? null,
     eruptionDetails: fields.get("ERUPTION DETAILS") ?? null,
@@ -171,6 +180,11 @@ export function parseAllAdvisories(text: string): { advisories: Advisory[]; fail
     else failures.push({ header: r.header, reason: r.reason });
   }
   return { advisories, failures };
+}
+
+/** True when the VAAC closed the series: no next advisory is scheduled and the bulletin says so. */
+export function isTerminated(advisory: Advisory): boolean {
+  return advisory.nextAdvisoryBy === null && /NO FURTHER ADVISORIES/i.test(advisory.raw);
 }
 
 /** Newest advisory whose VOLCANO field matches the pattern, or null. */

@@ -14,11 +14,23 @@ const validLayer = {
 
 const minimalDoc = {
   generatedAt: "2026-09-06T02:00:00Z",
-  volcano: { name: "x", lat: -6.1, lon: 105.4, elevationM: 155 },
-  vaac: null,
-  magma: null,
+  volcanoes: [],
+  magmaFetchedAt: null,
   satellite: null,
   sourceErrors: [],
+};
+const volcano = {
+  id: "KRA",
+  name: "Anak Krakatau",
+  gvp: "262000",
+  lat: -6.1,
+  lon: 105.4,
+  elevationM: 155,
+  region: "Selat Sunda",
+  vaac: null,
+  active: false,
+  activityLevel: { level: 3, name: "Siaga" },
+  latestVona: null,
 };
 
 describe("schema", () => {
@@ -40,11 +52,9 @@ describe("schema", () => {
     expect(latestDataSchema.safeParse(minimalDoc).success).toBe(true);
   });
 
-  it("rejects an activity level outside 1-4", () => {
-    const r = latestDataSchema.safeParse({
-      ...minimalDoc,
-      magma: { fetchedAt: "2026-09-06T02:00:00Z", activityLevel: { level: 5, name: "x" }, latestVona: null },
-    });
+  it("accepts a volcano entry and rejects an activity level outside 1-4", () => {
+    expect(latestDataSchema.safeParse({ ...minimalDoc, volcanoes: [volcano] }).success).toBe(true);
+    const r = latestDataSchema.safeParse({ ...minimalDoc, volcanoes: [{ ...volcano, activityLevel: { level: 5, name: "x" } }] });
     expect(r.success).toBe(false);
   });
 });

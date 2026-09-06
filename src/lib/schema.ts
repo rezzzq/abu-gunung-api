@@ -37,6 +37,10 @@ export const advisorySchema = z.object({
   header: z.string().min(1),
   issuedAt: isoDateTime,
   volcano: z.string().min(1),
+  /** Source position from the PSN line, null when the bulletin has none. */
+  position: z.object({ lat: z.number().min(-90).max(90), lon: z.number().min(-180).max(180) }).nullable(),
+  /** Summit elevation in metres from SOURCE ELEV, null when missing. */
+  elevationM: z.number().nullable(),
   advisoryNumber: z.string().nullable(),
   infoSource: z.string().nullable(),
   eruptionDetails: z.string().nullable(),
@@ -60,22 +64,34 @@ export const vonaSchema = z.object({
   url: z.url().nullable(),
 });
 
-export const magmaSchema = z.object({
-  fetchedAt: isoDateTime,
-  activityLevel: activityLevelSchema.nullable(),
-  latestVona: vonaSchema.nullable(),
-});
 
 export const satelliteSchema = z.object({
   layer: z.string(),
   latestFrameTime: isoDateTime.nullable(),
 });
 
+/** One volcano on the map: identity, position, its newest advisory and its MAGMA status. */
+export const volcanoStatusSchema = z.object({
+  /** MAGMA VONA code (KRA, SMR, ...) or a slug of the VAAC name when MAGMA does not list it. */
+  id: z.string().min(1),
+  name: z.string().min(1),
+  gvp: z.string().nullable(),
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  elevationM: z.number().nullable(),
+  region: z.string().nullable(),
+  vaac: advisorySchema.nullable(),
+  /** True when the advisory is fresh and not terminated; only active volcanoes carry ash zones. */
+  active: z.boolean(),
+  activityLevel: activityLevelSchema.nullable(),
+  latestVona: vonaSchema.nullable(),
+});
+
 export const latestDataSchema = z.object({
   generatedAt: isoDateTime,
-  volcano: z.object({ name: z.string(), lat: z.number(), lon: z.number(), elevationM: z.number() }),
-  vaac: advisorySchema.nullable(),
-  magma: magmaSchema.nullable(),
+  /** Active volcanoes first, highest ash top first; then Level III/IV volcanoes. */
+  volcanoes: z.array(volcanoStatusSchema),
+  magmaFetchedAt: isoDateTime.nullable(),
   satellite: satelliteSchema.nullable(),
   sourceErrors: z.array(z.string()),
 });
@@ -99,7 +115,7 @@ export type Forecast = z.infer<typeof forecastSchema>;
 export type Advisory = z.infer<typeof advisorySchema>;
 export type ActivityLevel = z.infer<typeof activityLevelSchema>;
 export type VonaEntry = z.infer<typeof vonaSchema>;
-export type MagmaStatus = z.infer<typeof magmaSchema>;
+export type VolcanoStatus = z.infer<typeof volcanoStatusSchema>;
 export type SatelliteInfo = z.infer<typeof satelliteSchema>;
 export type LatestData = z.infer<typeof latestDataSchema>;
 export type HimawariRgb = z.infer<typeof himawariRgbSchema>;

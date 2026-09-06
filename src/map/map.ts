@@ -1,5 +1,5 @@
 import L from "leaflet";
-import { COLORS, INITIAL_VIEW, VOLCANO } from "../config";
+import { COLORS, INITIAL_VIEW } from "../config";
 
 /** Adds an SVG hatch pattern to the map's vector renderer so high ash layers can use it as fill. */
 function addHatchPattern(map: L.Map): void {
@@ -29,8 +29,8 @@ function addHatchPattern(map: L.Map): void {
   container.prepend(defs);
 }
 
-/** Creates the map shell. The basemap tiles are added separately so they can follow the theme. */
-export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
+/** Creates the map shell. Basemap tiles and volcano markers are added separately. */
+export function createMap(el: HTMLElement): L.Map {
   const map = L.map(el, {
     center: INITIAL_VIEW.center,
     zoom: INITIAL_VIEW.zoom,
@@ -40,11 +40,6 @@ export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
   });
   map.createPane("satellite").style.zIndex = "350";
   map.createPane("wind").style.zIndex = "450";
-
-  const icon = L.divIcon({ className: "", html: '<div class="volcano-marker"></div>', iconSize: [22, 22], iconAnchor: [11, 11] });
-  L.marker([VOLCANO.lat, VOLCANO.lon], { icon, zIndexOffset: 1000, keyboard: true, title: VOLCANO.name })
-    .bindPopup(volcanoPopupHtml)
-    .addTo(map);
 
   addHatchPattern(map);
   // On wide screens the left panel covers part of the map; shift the view so the strait stays visible.

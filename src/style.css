@@ -103,6 +103,14 @@ body.sheet-open .leaflet-control-attribution { display: none; }
 }
 
 
+/* Other volcanoes: a small dot in the PVMBG level colour; a white ring marks an active advisory. */
+.volcano-dot { width: 14px; height: 14px; margin: 1px; border-radius: 50%; background: #999; border: 2.5px solid var(--paper); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35); }
+.volcano-dot--level2 { background: var(--level2); }
+.volcano-dot--level3 { background: var(--level3); }
+.volcano-dot--level4 { background: var(--level4); }
+.volcano-dot--active { box-shadow: 0 0 0 2px var(--amber), 0 1px 4px rgba(0, 0, 0, 0.35); }
+path.ash--other { pointer-events: none; }
+
 .user-marker { width: 16px; height: 16px; border-radius: 50%; background: #1e88e5; border: 3px solid var(--paper); box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.5); }
 
 /* Top bar */
@@ -167,13 +175,26 @@ body.sat-on path.ash { stroke-width: 2.5px; }
 .sheet { min-height: 0; background: var(--glass-strong); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-radius: 20px 20px 0 0; box-shadow: var(--shadow-up); padding-bottom: var(--safe-bottom); max-height: calc(80vh - var(--safe-bottom)); display: flex; flex-direction: column; }
 .sheet__handle { width: 100%; border: 0; background: transparent; padding: 8px 0 6px; cursor: pointer; touch-action: none; }
 .sheet__grip { display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto; }
-.sheet__peek { padding: 10px 16px 12px; display: grid; gap: 7px; }
-.sheet__scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.sheet__peek { flex: none; padding: 10px 16px 12px; display: grid; gap: 7px; }
+.sheet__scroll { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
 .sheet--collapsed .sheet__scroll { display: none; }
 .sheet__body { padding: 4px 16px 16px; display: grid; gap: 12px; }
 
+/* Volcano strip: one chip per listed volcano */
+.vchips { flex: none; display: flex; gap: 6px; margin: 0 16px 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.vchips::-webkit-scrollbar { display: none; }
+.vchips[hidden] { display: none; }
+.vchip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px 0 9px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 12.5px; white-space: nowrap; cursor: pointer; }
+.vchip[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+.vchip__dot { width: 8px; height: 8px; border-radius: 50%; background: #999; flex: none; }
+.vchip__dot--level2 { background: var(--level2); }
+.vchip__dot--level3 { background: var(--level3); }
+.vchip__dot--level4 { background: var(--level4); }
+.vchip:not(.vchip--active) { opacity: 0.75; }
+.vchip[aria-selected="true"]:not(.vchip--active) { opacity: 1; }
+
 /* Segmented time control */
-.segments { display: flex; gap: 2px; margin: 0 16px; padding: 3px; background: var(--track); border-radius: 12px; }
+.segments { flex: none; display: flex; gap: 2px; margin: 0 16px; padding: 3px; background: var(--track); border-radius: 12px; }
 .segments:empty { display: none; }
 .segment { flex: 1 1 0; min-width: 0; height: 32px; border: 0; border-radius: 9px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: 12.5px; letter-spacing: -0.01em; white-space: nowrap; cursor: pointer; display: grid; place-items: center; transition: background 0.15s, color 0.15s; }
 .segment[aria-selected="true"] { background: var(--ink); color: var(--on-ink); }
@@ -272,6 +293,8 @@ body.sat-on path.ash { stroke-width: 2.5px; }
   .sheet__handle { display: none; }
   .sheet__peek { padding-top: 14px; }
   .segments { margin-top: 14px; }
+  .vchips { margin-top: 14px; }
+  .vchips:not([hidden]) + .segments { margin-top: 0; }
   .legend { display: grid; right: 12px; bottom: 24px; }
   .peek-legend { display: none; }
   .leaflet-bottom { bottom: 0; }

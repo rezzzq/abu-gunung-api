@@ -1,7 +1,7 @@
 import L from "leaflet";
 import { COLORS, HIGH_LAYER_FL } from "../config";
 import { closeRing } from "../lib/geo";
-import type { AshLayer as AshLayerData } from "../lib/schema";
+import type { AshLayer as AshLayerData, VolcanoStatus } from "../lib/schema";
 
 export interface TimeStep {
   /** Short chip label, e.g. "Sekarang" or "+6 jam". */
@@ -19,10 +19,31 @@ export function isHighLayer(layer: AshLayerData): boolean {
 
 export class AshLayer {
   private readonly group: L.LayerGroup;
+  private readonly others: L.LayerGroup;
   private outlineOnly = false;
 
   constructor(map: L.Map, private readonly popupHtml: (layer: AshLayerData) => string) {
+    this.others = L.layerGroup().addTo(map);
     this.group = L.layerGroup().addTo(map);
+  }
+
+  /** Current observed zones of the other active volcanoes, as thin dashed outlines without fills. */
+  showOthers(volcanoes: VolcanoStatus[]): void {
+    this.others.clearLayers();
+    for (const v of volcanoes) {
+      for (const layer of v.vaac?.observation?.layers ?? []) {
+        const latLngs = closeRing(layer.polygon).map(([lon, lat]) => L.latLng(lat, lon));
+        L.polygon(latLngs, {
+          color: isHighLayer(layer) ? COLORS.purple : COLORS.amber,
+          weight: 1.5,
+          opacity: 0.7,
+          dashArray: "4 4",
+          fill: false,
+          interactive: false,
+          className: "ash ash--other",
+        }).addTo(this.others);
+      }
+    }
   }
 
   /** Thin fills so satellite imagery underneath stays readable; the boundary and taps remain. */

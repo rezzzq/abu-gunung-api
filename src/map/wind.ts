@@ -1,13 +1,13 @@
 import L from "leaflet";
-import { COLORS, OPEN_METEO_URL, VOLCANO } from "../config";
+import { COLORS, openMeteoUrl } from "../config";
 import { bearingToCompass, compassName, t, type Locale } from "../i18n";
 import { formatWibClock } from "../lib/time";
 import { destinationPoint, pickWindReport, towardDeg, type WindLevelKey, type WindReport } from "../lib/wind-report";
 
 export type { WindReport } from "../lib/wind-report";
 
-export async function fetchWind(now: Date, signal?: AbortSignal): Promise<WindReport | null> {
-  const res = await fetch(OPEN_METEO_URL, { signal });
+export async function fetchWind(now: Date, lat: number, lon: number, signal?: AbortSignal): Promise<WindReport | null> {
+  const res = await fetch(openMeteoUrl(lat, lon), { signal });
   if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
   return pickWindReport(await res.json(), now);
 }
@@ -46,18 +46,18 @@ export class WindLayer {
 
   constructor(private readonly map: L.Map, private readonly locale: Locale) {}
 
-  show(report: WindReport | null): void {
+  show(report: WindReport | null, origin: { lat: number; lon: number } | null): void {
     this.group.clearLayers();
-    if (!report) return;
+    if (!report || !origin) return;
     for (const level of report.levels) {
       const toward = towardDeg(level);
       const lengthKm = Math.min(120, Math.max(15, level.speedKmh * 1.2));
-      const tip = destinationPoint(VOLCANO.lat, VOLCANO.lon, toward, lengthKm);
+      const tip = destinationPoint(origin.lat, origin.lon, toward, lengthKm);
       const headL = destinationPoint(tip[0], tip[1], toward + 150, lengthKm * 0.18);
       const headR = destinationPoint(tip[0], tip[1], toward - 150, lengthKm * 0.18);
       const color = COLORS.wind[level.key];
       const style: L.PolylineOptions = { color, weight: level.key === "surface" ? 3 : 4, opacity: 0.9, lineCap: "round", pane: "wind" };
-      L.polyline([[VOLCANO.lat, VOLCANO.lon], tip], style).addTo(this.group);
+      L.polyline([[origin.lat, origin.lon], tip], style).addTo(this.group);
       L.polyline([headL, tip, headR], style)
         .bindTooltip(`${t(this.locale, LEVEL_LABEL[level.key])} · ${Math.round(level.speedKmh)} km/j`, { className: "wind-tip", direction: "top" })
         .addTo(this.group);

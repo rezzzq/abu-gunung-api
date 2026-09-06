@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  isTerminated,
   latestAdvisoryFor,
   parseAdvisory,
   parseAllAdvisories,
@@ -153,5 +154,44 @@ describe("parseAllAdvisories and latestAdvisoryFor", () => {
   it("splitBulletins ignores blank leading text and empty input", () => {
     expect(splitBulletins(`\n\n${semeru}`)).toHaveLength(1);
     expect(splitBulletins("")).toEqual([]);
+  });
+});
+
+describe("position, elevation and termination", () => {
+  it("reads the source position and elevation from the bulletin", () => {
+    const r = parseAdvisory(splitBulletins(krakatau)[0]!);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.advisory.position).toEqual({ lat: -6.1, lon: 105.4167 });
+    expect(r.advisory.elevationM).toBe(155);
+    expect(isTerminated(r.advisory)).toBe(false);
+  });
+
+  it("flags a final advisory as terminated", () => {
+    const bulletin = `FVAU05 ADRM 050442
+VA ADVISORY
+DTG: 20260905/0442Z
+VAAC: DARWIN
+VOLCANO: SINABUNG 261080
+PSN: N0310 E09824
+AREA: INDONESIA
+SOURCE ELEV: 2460M AMSL
+ADVISORY NR: 2026/25
+INFO SOURCE: HIMAWARI-9
+ERUPTION DETAILS: VA OBS TO FL140 MOV E AT 04/0430Z
+EST VA DTG: 05/0445Z
+EST VA CLD: VA NOT IDENTIFIABLE FM SATELLITE DATA WIND SFC/FL140 190/05KT
+FCST VA CLD +6 HR: 05/1045Z NO VA EXP
+FCST VA CLD +12 HR: 05/1645Z NO VA EXP
+FCST VA CLD +18 HR: 05/2245Z NO VA EXP
+RMK: VA NOT IDENTIFIABLE ON RECENT SATELLITE IMAGERY. ADVISORY TERMINATED.
+NXT ADVISORY: NO FURTHER ADVISORIES=`;
+    const r = parseAdvisory(bulletin);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.advisory.position).toEqual({ lat: 3.1667, lon: 98.4 });
+    expect(r.advisory.elevationM).toBe(2460);
+    expect(r.advisory.nextAdvisoryBy).toBeNull();
+    expect(isTerminated(r.advisory)).toBe(true);
   });
 });
