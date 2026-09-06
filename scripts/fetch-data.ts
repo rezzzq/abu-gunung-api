@@ -21,7 +21,7 @@ const GIBS_CAPS_URL = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/
 const GIBS_LAYER = "Himawari_AHI_Band13_Clean_Infrared";
 // MAGMA answers 403 to non-browser user agents. Identify the project after the browser token.
 const USER_AGENT =
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 krakatau-ash-map/0.1 (+https://niriksagara.id)";
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 abu-gunung-api/0.2 (+https://niriksagara.id)";
 
 function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);

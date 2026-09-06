@@ -95,7 +95,8 @@ only the infrared view.
 
 ## Deploy
 
-Production runs on Netlify at https://abu-krakatau.netlify.app. The GitHub
+Production runs on Netlify at https://abu-gunung-api.netlify.app (the old
+address abu-krakatau.netlify.app redirects there). The GitHub
 Actions workflow in `.github/workflows/update-and-deploy.yml` runs on every
 push to `main`, every 15 minutes, and on demand. Each run fetches fresh data,
 commits it, runs the tests, builds the site and deploys `dist/` to Netlify with
@@ -112,7 +113,7 @@ To deploy from your own machine instead:
 
 ```bash
 npx netlify-cli login
-npx netlify-cli link          # pick the abu-krakatau project
+npx netlify-cli link          # pick the abu-gunung-api project
 npm run fetch && npm run build
 npx netlify-cli deploy --prod --dir=dist
 ```
