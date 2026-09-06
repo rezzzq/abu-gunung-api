@@ -87,10 +87,27 @@ export const volcanoStatusSchema = z.object({
   latestVona: vonaSchema.nullable(),
 });
 
+/** An airport with its latest METAR weather report, if one was available. */
+export const airportStatusSchema = z.object({
+  icao: z.string().length(4),
+  iata: z.string().length(3),
+  name: z.string().min(1),
+  city: z.string().min(1),
+  lat: z.number().min(-90).max(90),
+  lon: z.number().min(-180).max(180),
+  observedAt: isoDateTime.nullable(),
+  raw: z.string().nullable(),
+  visibilityM: z.number().nullable(),
+  weather: z.array(z.string()),
+  /** Volcanic ash reported at, blowing over, or near the airport. False also when there is no report. */
+  ash: z.boolean(),
+});
+
 export const latestDataSchema = z.object({
   generatedAt: isoDateTime,
   /** Active volcanoes first, highest ash top first; then Level III/IV volcanoes. */
   volcanoes: z.array(volcanoStatusSchema),
+  airports: z.array(airportStatusSchema).default([]),
   magmaFetchedAt: isoDateTime.nullable(),
   satellite: satelliteSchema.nullable(),
   sourceErrors: z.array(z.string()),
@@ -126,6 +143,7 @@ export type Advisory = z.infer<typeof advisorySchema>;
 export type ActivityLevel = z.infer<typeof activityLevelSchema>;
 export type VonaEntry = z.infer<typeof vonaSchema>;
 export type VolcanoStatus = z.infer<typeof volcanoStatusSchema>;
+export type AirportStatus = z.infer<typeof airportStatusSchema>;
 export type SatelliteInfo = z.infer<typeof satelliteSchema>;
 export type LatestData = z.infer<typeof latestDataSchema>;
 export type Himawari = z.infer<typeof himawariSchema>;

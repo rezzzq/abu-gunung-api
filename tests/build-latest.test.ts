@@ -52,7 +52,14 @@ const magmaOk = {
   },
 };
 const satOk = { status: "ok" as const, value: { layer: "L", latestFrameTime: null } };
-const base = { now, vaacPartialFailures: [] as string[], magma: magmaOk, satellite: satOk, previous: null };
+const metarsOk = {
+  status: "ok" as const,
+  value: [
+    { icao: "WIII", raw: "METAR WIII 061300Z 03005KT 7000 VA SCT020 28/21 Q1014 NOSIG" },
+    { icao: "WARR", raw: "METAR WARR 061300Z 12008KT 4000 HZ FEW020 27/22 Q1014 NOSIG" },
+  ],
+};
+const base = { now, vaacPartialFailures: [] as string[], magma: magmaOk, satellite: satOk, metars: metarsOk, previous: null };
 
 describe("buildLatest", () => {
   it("lists one entry per volcano, newest advisory each, active ones first by ash top", () => {
@@ -118,6 +125,24 @@ describe("buildLatest", () => {
     });
     expect(d.satellite).toBeNull();
     expect(d.sourceErrors.filter((e) => !/Gunung Fiktif/.test(e))).toEqual(["vaac: fvau07.adrm..txt: HTTP 404", "satellite: timeout"]);
+  });
+});
+
+describe("buildLatest airports", () => {
+  it("lists every airport in the table, with its parsed report when one exists", () => {
+    const d = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] } });
+    const cgk = d.airports.find((a) => a.icao === "WIII")!;
+    expect(cgk).toMatchObject({ iata: "CGK", ash: true, visibilityM: 7000, observedAt: "2026-09-06T13:00:00Z" });
+    const bdo = d.airports.find((a) => a.icao === "WICC")!;
+    expect(bdo).toMatchObject({ iata: "BDO", ash: false, visibilityM: null, observedAt: null, raw: null });
+    expect(d.airports.length).toBeGreaterThan(10);
+  });
+
+  it("keeps the previous reports when the METAR fetch failed", () => {
+    const previous = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] } });
+    const d = buildLatest({ ...base, previous, advisories: { status: "ok", value: [krakatau] }, metars: { status: "failed", error: "HTTP 503" } });
+    expect(d.airports.find((a) => a.icao === "WIII")?.ash).toBe(true);
+    expect(d.sourceErrors).toContain("metar: kept previous airport reports because fetch failed: HTTP 503");
   });
 });
 

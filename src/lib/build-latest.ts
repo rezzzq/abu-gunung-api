@@ -1,14 +1,17 @@
-import { isTerminated } from "./vaa-parser";
+import { AIRPORTS } from "./airports";
 import { latestVonaFor, type VonaWithVolcano } from "./magma-parser";
+import { parseMetar } from "./metar-parser";
 import {
   latestDataSchema,
   type ActivityLevel,
   type Advisory,
+  type AirportStatus,
   type LatestData,
   type SatelliteInfo,
   type VolcanoStatus,
 } from "./schema";
 import { toIso } from "./time";
+import { isTerminated } from "./vaa-parser";
 import { byMagmaName, resolveVolcano } from "./volcanoes";
 
 export type SourceResult<T> = { status: "ok"; value: T } | { status: "failed"; error: string };
@@ -20,6 +23,11 @@ export interface MagmaSnapshot {
   vonas: VonaWithVolcano[];
 }
 
+export interface RawMetar {
+  icao: string;
+  raw: string;
+}
+
 export interface BuildInput {
   now: Date;
   /** Every advisory parsed from every VAAC file. */
@@ -28,7 +36,26 @@ export interface BuildInput {
   vaacPartialFailures: string[];
   magma: SourceResult<MagmaSnapshot>;
   satellite: SourceResult<SatelliteInfo>;
+  /** Latest METAR per reporting airport; airports without a report are simply absent. */
+  metars: SourceResult<RawMetar[]>;
   previous: LatestData | null;
+}
+
+/** Every airport in the table, with its parsed report when one exists. */
+function buildAirports(metars: RawMetar[], now: Date): AirportStatus[] {
+  const byIcao = new Map(metars.map((m) => [m.icao, m.raw]));
+  return AIRPORTS.map((a) => {
+    const raw = byIcao.get(a.icao) ?? null;
+    const report = raw ? parseMetar(raw, now) : null;
+    return {
+      ...a,
+      observedAt: report?.time ?? null,
+      raw,
+      visibilityM: report?.visibilityM ?? null,
+      weather: report?.weather ?? [],
+      ash: report?.ash ?? false,
+    };
+  });
 }
 
 /** An advisory older than this no longer makes a volcano active. */
@@ -141,9 +168,21 @@ export function buildLatest(input: BuildInput): LatestData {
   if (input.satellite.status === "ok") satellite = input.satellite.value;
   else errors.push(`satellite: ${input.satellite.error}`);
 
+  let airports: AirportStatus[];
+  if (input.metars.status === "ok") airports = buildAirports(input.metars.value, input.now);
+  else {
+    airports = input.previous?.airports ?? buildAirports([], input.now);
+    errors.push(
+      input.previous?.airports?.length
+        ? `metar: kept previous airport reports because fetch failed: ${input.metars.error}`
+        : `metar: ${input.metars.error}`,
+    );
+  }
+
   return latestDataSchema.parse({
     generatedAt: toIso(input.now),
     volcanoes,
+    airports,
     magmaFetchedAt: magma ? toIso(input.now) : null,
     satellite,
     sourceErrors: errors,

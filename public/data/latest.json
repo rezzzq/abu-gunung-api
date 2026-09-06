@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T13:17:42Z",
+  "generatedAt": "2026-09-06T13:26:12Z",
   "volcanoes": [
     {
       "id": "KRA",
@@ -983,6 +983,38 @@
       "latestVona": null
     },
     {
+      "id": "LWK",
+      "name": "Lewotobi Laki-laki",
+      "gvp": null,
+      "lat": -8.539,
+      "lon": 122.775,
+      "elevationM": 1584,
+      "region": "Flores, NTT",
+      "vaac": null,
+      "active": false,
+      "activityLevel": {
+        "level": 3,
+        "name": "Siaga"
+      },
+      "latestVona": null
+    },
+    {
+      "id": "MER",
+      "name": "Merapi",
+      "gvp": null,
+      "lat": -7.54,
+      "lon": 110.446,
+      "elevationM": 2910,
+      "region": "Jawa Tengah / DIY",
+      "vaac": null,
+      "active": false,
+      "activityLevel": {
+        "level": 3,
+        "name": "Siaga"
+      },
+      "latestVona": null
+    },
+    {
       "id": "SIN",
       "name": "Sinabung",
       "gvp": "261080",
@@ -1036,12 +1068,466 @@
       "latestVona": null
     }
   ],
-  "magmaFetchedAt": null,
+  "airports": [
+    {
+      "icao": "WIII",
+      "iata": "CGK",
+      "name": "Soekarno-Hatta",
+      "city": "Jakarta",
+      "lat": -6.126,
+      "lon": 106.656,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIII 061300Z 03005KT 7000 VA SCT020 28/21 Q1014 NOSIG",
+      "visibilityM": 7000,
+      "weather": [
+        "VA"
+      ],
+      "ash": true
+    },
+    {
+      "icao": "WIHH",
+      "iata": "HLP",
+      "name": "Halim Perdanakusuma",
+      "city": "Jakarta",
+      "lat": -6.267,
+      "lon": 106.891,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIHH 061300Z 05003KT 8000 VA SCT018 29/19 Q1014 NOSIG",
+      "visibilityM": 8000,
+      "weather": [
+        "VA"
+      ],
+      "ash": true
+    },
+    {
+      "icao": "WICC",
+      "iata": "BDO",
+      "name": "Husein Sastranegara",
+      "city": "Bandung",
+      "lat": -6.901,
+      "lon": 107.576,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WICA",
+      "iata": "KJT",
+      "name": "Kertajati",
+      "city": "Majalengka",
+      "lat": -6.648,
+      "lon": 108.166,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WILL",
+      "iata": "TKG",
+      "name": "Radin Inten II",
+      "city": "Bandar Lampung",
+      "lat": -5.243,
+      "lon": 105.179,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WILL 061300Z 15007KT 120V190 9999 VA FEW020 27/19 Q1014 NOSIG",
+      "visibilityM": 10000,
+      "weather": [
+        "VA"
+      ],
+      "ash": true
+    },
+    {
+      "icao": "WIPP",
+      "iata": "PLM",
+      "name": "Sultan Mahmud Badaruddin II",
+      "city": "Palembang",
+      "lat": -2.898,
+      "lon": 104.7,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIPP 061300Z 13012KT 9000 SCT015 29/22 Q1013 NOSIG",
+      "visibilityM": 9000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WIGG",
+      "iata": "BKS",
+      "name": "Fatmawati Soekarno",
+      "city": "Bengkulu",
+      "lat": -3.861,
+      "lon": 102.339,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WIJJ",
+      "iata": "DJB",
+      "name": "Sultan Thaha",
+      "city": "Jambi",
+      "lat": -1.638,
+      "lon": 103.644,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WIEE",
+      "iata": "PDG",
+      "name": "Minangkabau",
+      "city": "Padang",
+      "lat": -0.787,
+      "lon": 100.281,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIEE 061300Z 16008KT 9999 SCT020 28/26 Q1012 NOSIG",
+      "visibilityM": 10000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WIBB",
+      "iata": "PKU",
+      "name": "Sultan Syarif Kasim II",
+      "city": "Pekanbaru",
+      "lat": 0.461,
+      "lon": 101.445,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIBB 061300Z 12004KT 4500 FU SCT012 30/22 Q1010 NOSIG",
+      "visibilityM": 4500,
+      "weather": [
+        "FU"
+      ],
+      "ash": false
+    },
+    {
+      "icao": "WIMM",
+      "iata": "KNO",
+      "name": "Kualanamu",
+      "city": "Medan",
+      "lat": 3.642,
+      "lon": 98.885,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIMM 061300Z 02003KT 4000 HZ SCT017 30/26 Q1011 NOSIG",
+      "visibilityM": 4000,
+      "weather": [
+        "HZ"
+      ],
+      "ash": false
+    },
+    {
+      "icao": "WITT",
+      "iata": "BTJ",
+      "name": "Sultan Iskandar Muda",
+      "city": "Banda Aceh",
+      "lat": 5.523,
+      "lon": 95.42,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WITT 061300Z 16003KT 9999 SCT018 25/24 Q1012 NOSIG",
+      "visibilityM": 10000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WIDD",
+      "iata": "BTH",
+      "name": "Hang Nadim",
+      "city": "Batam",
+      "lat": 1.121,
+      "lon": 104.119,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WIDD 061300Z 15006KT 7000 FEW014 28/23 Q1013 NOSIG",
+      "visibilityM": 7000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAHS",
+      "iata": "SRG",
+      "name": "Jenderal Ahmad Yani",
+      "city": "Semarang",
+      "lat": -6.973,
+      "lon": 110.375,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WAHS 061300Z 34007KT 6000 FEW018 29/23 Q1014 NOSIG",
+      "visibilityM": 6000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAHI",
+      "iata": "YIA",
+      "name": "Yogyakarta International",
+      "city": "Kulon Progo",
+      "lat": -7.905,
+      "lon": 110.057,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WAHI 061300Z 14006KT 110V170 8000 SCT018 26/21 Q1016 NOSIG",
+      "visibilityM": 8000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAHQ",
+      "iata": "SOC",
+      "name": "Adi Soemarmo",
+      "city": "Solo",
+      "lat": -7.516,
+      "lon": 110.757,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WARR",
+      "iata": "SUB",
+      "name": "Juanda",
+      "city": "Surabaya",
+      "lat": -7.38,
+      "lon": 112.787,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WARR 061300Z 12008KT 4000 HZ FEW020 27/22 Q1014 NOSIG",
+      "visibilityM": 4000,
+      "weather": [
+        "HZ"
+      ],
+      "ash": false
+    },
+    {
+      "icao": "WARA",
+      "iata": "MLG",
+      "name": "Abdul Rachman Saleh",
+      "city": "Malang",
+      "lat": -7.927,
+      "lon": 112.715,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WADY",
+      "iata": "BWX",
+      "name": "Banyuwangi",
+      "city": "Banyuwangi",
+      "lat": -8.31,
+      "lon": 114.34,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WADD",
+      "iata": "DPS",
+      "name": "I Gusti Ngurah Rai",
+      "city": "Denpasar",
+      "lat": -8.748,
+      "lon": 115.167,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WADD 061300Z 13007KT 9999 SCT016 26/24 Q1016 NOSIG",
+      "visibilityM": 10000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WADL",
+      "iata": "LOP",
+      "name": "Lombok International",
+      "city": "Praya",
+      "lat": -8.757,
+      "lon": 116.277,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WADL 061300Z 13006KT 7000 BKN016 24/21 Q1017 NOSIG",
+      "visibilityM": 7000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WADB",
+      "iata": "BMU",
+      "name": "Sultan Muhammad Salahuddin",
+      "city": "Bima",
+      "lat": -8.54,
+      "lon": 118.687,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATO",
+      "iata": "LBJ",
+      "name": "Komodo",
+      "city": "Labuan Bajo",
+      "lat": -8.487,
+      "lon": 119.889,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATC",
+      "iata": "MOF",
+      "name": "Frans Seda",
+      "city": "Maumere",
+      "lat": -8.641,
+      "lon": 122.237,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATE",
+      "iata": "ENE",
+      "name": "H. Hasan Aroeboesman",
+      "city": "Ende",
+      "lat": -8.849,
+      "lon": 121.661,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATL",
+      "iata": "LKA",
+      "name": "Gewayantana",
+      "city": "Larantuka",
+      "lat": -8.275,
+      "lon": 123.002,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATW",
+      "iata": "LWE",
+      "name": "Wunopito",
+      "city": "Lewoleba",
+      "lat": -8.363,
+      "lon": 123.439,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WATT",
+      "iata": "KOE",
+      "name": "El Tari",
+      "city": "Kupang",
+      "lat": -10.171,
+      "lon": 123.671,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WATT 061300Z 13005KT 8000 SCT017 26/22 Q1015 NOSIG",
+      "visibilityM": 8000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAAA",
+      "iata": "UPG",
+      "name": "Sultan Hasanuddin",
+      "city": "Makassar",
+      "lat": -5.062,
+      "lon": 119.554,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WAAA 061300Z 04003KT 8000 FEW020 27/22 Q1013 NOSIG",
+      "visibilityM": 8000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAMM",
+      "iata": "MDC",
+      "name": "Sam Ratulangi",
+      "city": "Manado",
+      "lat": 1.549,
+      "lon": 124.926,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WAMM 061300Z 16004KT 9999 FEW020 27/22 Q1016 NOSIG",
+      "visibilityM": 10000,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAMT",
+      "iata": "TTE",
+      "name": "Sultan Babullah",
+      "city": "Ternate",
+      "lat": 0.831,
+      "lon": 127.381,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAMA",
+      "iata": "GLX",
+      "name": "Gamar Malamo",
+      "city": "Galela",
+      "lat": 1.839,
+      "lon": 127.786,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAEE",
+      "iata": "KAZ",
+      "name": "Kuabang",
+      "city": "Kao",
+      "lat": 1.185,
+      "lon": 127.896,
+      "observedAt": null,
+      "raw": null,
+      "visibilityM": null,
+      "weather": [],
+      "ash": false
+    },
+    {
+      "icao": "WAPP",
+      "iata": "AMQ",
+      "name": "Pattimura",
+      "city": "Ambon",
+      "lat": -3.71,
+      "lon": 128.089,
+      "observedAt": "2026-09-06T13:00:00Z",
+      "raw": "METAR WAPP 061300Z VRB01KT 9000 FEW017 23/22 Q1014 NOSIG",
+      "visibilityM": 9000,
+      "weather": [],
+      "ash": false
+    }
+  ],
+  "magmaFetchedAt": "2026-09-06T13:26:12Z",
   "satellite": {
     "layer": "Himawari_AHI_Band13_Clean_Infrared",
-    "latestFrameTime": "2026-09-06T12:20:00Z"
+    "latestFrameTime": "2026-09-06T12:50:00Z"
   },
-  "sourceErrors": [
-    "magma: vona: HTTP 502"
-  ]
+  "sourceErrors": []
 }

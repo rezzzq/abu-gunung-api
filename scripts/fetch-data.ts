@@ -7,7 +7,8 @@
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { buildLatest, extractLatestFrameTime, type MagmaSnapshot, type SourceResult } from "../src/lib/build-latest";
+import { AIRPORTS } from "../src/lib/airports";
+import { buildLatest, extractLatestFrameTime, type MagmaSnapshot, type RawMetar, type SourceResult } from "../src/lib/build-latest";
 import { parseActivityLevels, parseVonas } from "../src/lib/magma-parser";
 import { latestDataSchema, type Advisory, type LatestData, type SatelliteInfo } from "../src/lib/schema";
 import { parseAllAdvisories } from "../src/lib/vaa-parser";
@@ -19,6 +20,8 @@ const MAGMA_LEVEL_URL = "https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivita
 const MAGMA_VONA_URL = "https://magma.esdm.go.id/v1/vona";
 const GIBS_CAPS_URL = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml";
 const GIBS_LAYER = "Himawari_AHI_Band13_Clean_Infrared";
+// NOAA Aviation Weather Center: latest METAR per station, no key needed.
+const METAR_URL = `https://aviationweather.gov/api/data/metar?format=json&ids=${AIRPORTS.map((a) => a.icao).join(",")}`;
 // MAGMA answers 403 to non-browser user agents. Identify the project after the browser token.
 const USER_AGENT =
   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36 abu-gunung-api/0.2 (+https://niriksagara.id)";
@@ -82,6 +85,23 @@ async function fetchSatellite(): Promise<SourceResult<SatelliteInfo>> {
   }
 }
 
+async function fetchMetars(): Promise<SourceResult<RawMetar[]>> {
+  try {
+    const text = await fetchText(METAR_URL, 30_000);
+    const parsed: unknown = JSON.parse(text);
+    if (!Array.isArray(parsed)) throw new Error("unexpected METAR payload");
+    const reports: RawMetar[] = [];
+    for (const item of parsed) {
+      if (typeof item !== "object" || item === null) continue;
+      const { icaoId, rawOb } = item as { icaoId?: unknown; rawOb?: unknown };
+      if (typeof icaoId === "string" && typeof rawOb === "string") reports.push({ icao: icaoId, raw: rawOb });
+    }
+    return { status: "ok", value: reports };
+  } catch (e) {
+    return { status: "failed", error: errorMessage(e) };
+  }
+}
+
 /** A missing or invalid previous file is a normal state (first run), not an error. */
 async function readPrevious(): Promise<LatestData | null> {
   let text: string;
@@ -102,13 +122,20 @@ async function readPrevious(): Promise<LatestData | null> {
 
 async function main(): Promise<void> {
   const now = new Date();
-  const [previous, vaac, magma, satellite] = await Promise.all([readPrevious(), fetchVaac(), fetchMagma(), fetchSatellite()]);
+  const [previous, vaac, magma, satellite, metars] = await Promise.all([
+    readPrevious(),
+    fetchVaac(),
+    fetchMagma(),
+    fetchSatellite(),
+    fetchMetars(),
+  ]);
   const data = buildLatest({
     now,
     advisories: vaac.result,
     vaacPartialFailures: vaac.partialFailures,
     magma,
     satellite,
+    metars,
     previous,
   });
   await mkdir(dirname(OUT), { recursive: true });
@@ -117,7 +144,8 @@ async function main(): Promise<void> {
   const summary = data.volcanoes
     .map((v) => `${v.id}${v.active ? "*" : ""}(L${v.activityLevel?.level ?? "?"})`)
     .join(" ");
-  console.info(`wrote ${OUT}: volcanoes=${summary || "none"} sat=${data.satellite?.latestFrameTime ?? "?"}`);
+  const ashAirports = data.airports.filter((a) => a.ash).map((a) => a.iata).join(",");
+  console.info(`wrote ${OUT}: volcanoes=${summary || "none"} ashAtAirports=${ashAirports || "none"} sat=${data.satellite?.latestFrameTime ?? "?"}`);
   if (data.volcanoes.length === 0 && data.satellite === null) process.exitCode = 1;
 }
 

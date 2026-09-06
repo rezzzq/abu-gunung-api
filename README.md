@@ -30,6 +30,10 @@ Bahasa Indonesia is the default language; English is one tap away.
   and the clean infrared tiles from NASA GIBS. All refresh every ten minutes
   at the source. The signal is off by default and labelled experimental: thick
   cloud and mountains can trigger it.
+- The nearest airports to the selected volcano with their latest METAR
+  weather report: whether volcanic ash is reported at the airport, the
+  visibility and the report time. This is not the official open or closed
+  status; that comes from NOTAMs, which need an FAA API key.
 - Wind at four heights above the selected crater from Open-Meteo, as a card
   and as arrows on the map showing where ash is heading.
 - A "check my location" button that reports the distance to the selected
@@ -46,6 +50,7 @@ scripts/fetch-data.ts  (every 15 min in CI)
   -> all eight Darwin VAAC bulletins via the NOAA mirror  (text, parsed in src/lib/vaa-parser.ts)
   -> MAGMA Indonesia level table and all-volcano VONA page (HTML, parsed in src/lib/magma-parser.ts)
   -> NASA GIBS capabilities                               (latest Himawari frame time)
+  -> aviationweather.gov METARs for the airports in src/lib/airports.ts (parsed in src/lib/metar-parser.ts)
   -> public/data/latest.json  one entry per volcano       (assembled in src/lib/build-latest.ts,
                                                            validated by src/lib/schema.ts)
 

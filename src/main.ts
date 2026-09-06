@@ -18,6 +18,7 @@ import { escapeHtml, layerPopupHtml, renderFreshness, renderLegend, renderSatLeg
 import { initTheme } from "./ui/theme";
 import { buildSteps, initTimeChips, type TimeChips } from "./ui/time-chips";
 import { initVolcanoStrip } from "./ui/volcano-strip";
+import { renderAirportsCard } from "./ui/airports-card";
 
 function byId<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -55,6 +56,7 @@ const els = {
   statusDetail: byId<HTMLElement>("status-detail"),
   stepInfo: byId<HTMLDivElement>("step-info"),
   windCard: byId<HTMLElement>("wind-card"),
+  airportsCard: byId<HTMLElement>("airports-card"),
   checkLocation: byId<HTMLButtonElement>("check-location"),
   locationResult: byId<HTMLParagraphElement>("location-result"),
   safety: byId<HTMLElement>("safety"),
@@ -188,6 +190,7 @@ function selectVolcano(id: string | null, focus: boolean): void {
     if (!steps.length) showStep(0);
   }
   renderStatus(els.status, els.statusDetail, v, latest?.sourceErrors ?? [], locale);
+  renderAirportsCard(els.airportsCard, latest?.airports ?? [], v, locale);
   strip.update(latest?.volcanoes ?? [], selectedId);
   markers.update(latest?.volcanoes ?? [], selectedId, volcanoPopupHtml);
   ashLayer.showOthers((latest?.volcanoes ?? []).filter((o) => o.active && o.id !== selectedId));
