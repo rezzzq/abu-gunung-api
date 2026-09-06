@@ -2,8 +2,9 @@ name: Update data and deploy
 
 on:
   schedule:
-    # Every 15 minutes. GitHub may delay scheduled runs by a few minutes under load.
-    - cron: "*/15 * * * *"
+    # Every 15 minutes, off the busy minutes: GitHub drops many runs scheduled at :00, :15, :30, :45.
+    # On 6 Sep 2026 the */15 pattern fired only twice in eight hours.
+    - cron: "4,19,34,49 * * * *"
   push:
     branches: [main]
   workflow_dispatch:
