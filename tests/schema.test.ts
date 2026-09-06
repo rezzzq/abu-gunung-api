@@ -68,8 +68,15 @@ describe("himawariSchema", () => {
     height: 1063,
     source: "Himawari-9 AHI via NOAA Open Data",
     rgb: { image: "ash-rgb.webp", error: null },
+    truecolor: { image: null, error: "night" },
     signal: { image: "ash-signal.webp", error: null, referenceDays: ["2026-09-05", "2026-09-04"], stats: { keptPixels: 3134, blobsKept: 71 } },
   };
+
+  it("fills in the true colour block for older sidecars", () => {
+    const { truecolor: _t, ...older } = meta;
+    const parsed = himawariSchema.safeParse(older);
+    expect(parsed.success && parsed.data.truecolor).toEqual({ image: null, error: null });
+  });
 
   it("accepts a rendered scan with both products", () => {
     expect(himawariSchema.safeParse(meta).success).toBe(true);

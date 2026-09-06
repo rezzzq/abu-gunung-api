@@ -44,6 +44,15 @@ the site build:
 
 The outputs are build artifacts, not committed to git.
 
+## True colour (added the same evening)
+
+By day the pipeline also downloads the visible bands B01, B02, B04 (1 km) and
+B03 (500 m), averages them onto the same 2 km grid, builds a hybrid green
+(93 % B02 + 7 % B04) and applies a square-root stretch. No Rayleigh
+correction, so distant haze looks slightly blue; the brown ash and its
+shadow still read clearly. The step runs only when at least a quarter of the
+region has the sun above 2 degrees; otherwise the sidecar says "night".
+
 ## Site
 
 - The satellite control cycles: off, Ash RGB, infrared. A small tag next to

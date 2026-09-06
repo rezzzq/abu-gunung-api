@@ -3,6 +3,7 @@
 Downloads the latest raw AHI scan from the NOAA open-data bucket, resamples it
 to a Web Mercator grid over Indonesia and writes:
 
+- ``true-color.webp``  daytime true colour (brown ash and its shadow are visible to anyone)
 - ``ash-rgb.webp``     the JMA Ash RGB composite (ash pink, ice cloud dark, low cloud tan)
 - ``ash-signal.webp``  amber where the split-window ash signal is lifted above a
                        clear-sky reference from the previous days, filtered by
@@ -37,10 +38,16 @@ RGB_BANDS = ("B11", "B13", "B15")
 SCAN_BANDS = ("B07", "B11", "B13", "B15")
 REFERENCE_BANDS = ("B13", "B15")
 REFERENCE_DAYS = 2
+# Visible bands for the daytime true colour: blue, green, red (500 m native) and near infrared.
+VISIBLE_BANDS = ("B01", "B02", "B03", "B04")
+# Native resolution code per band in the file names; everything else is 2 km.
+BAND_RESOLUTION = {"B01": "R10", "B02": "R10", "B03": "R05", "B04": "R10"}
+# Share of the grid that must be in daylight before the true colour is rendered.
+MIN_DAYLIGHT = 0.25
 # Full-disk segments 5-7 cover about 10 N to 20 S at Indonesian longitudes.
 SEGMENTS = ("S0510", "S0610", "S0710")
 FILE_RE = re.compile(
-    r"HS_H09_(?P<date>\d{8})_(?P<time>\d{4})_(?P<band>B\d{2})_FLDK_R20_(?P<segment>S\d{4})\.DAT\.bz2$"
+    r"HS_H09_(?P<date>\d{8})_(?P<time>\d{4})_(?P<band>B\d{2})_FLDK_(?P<res>R\d{2})_(?P<segment>S\d{4})\.DAT\.bz2$"
 )
 
 # Longitude 95..131 E and latitude 12 S..7 N at about 2 km: Sumatra to Halmahera, all listed volcanoes.
@@ -67,6 +74,7 @@ LATEST_JSON = Path("public/data/latest.json")
 SIGNAL_LOG = Path("data/signal-log.jsonl")
 RGB_IMAGE = "ash-rgb.webp"
 SIGNAL_IMAGE = "ash-signal.webp"
+TRUECOLOR_IMAGE = "true-color.webp"
 JSON_NAME = "himawari.json"
 SOURCE = "Himawari-9 AHI via NOAA Open Data"
 
@@ -91,6 +99,8 @@ def complete_scans(keys: list[str], bands: tuple[str, ...]) -> dict[str, list[st
     for key in keys:
         m = FILE_RE.search(key)
         if not m or m["band"] not in bands or m["segment"] not in SEGMENTS:
+            continue
+        if m["res"] != BAND_RESOLUTION.get(m["band"], "R20"):
             continue
         scans.setdefault(m["date"] + m["time"], {})[(m["band"], m["segment"])] = key
     needed = len(bands) * len(SEGMENTS)
@@ -339,6 +349,34 @@ def solar_zenith(width: int, height: int, when: dt.datetime) -> np.ndarray:
     return np.asarray(sun_zenith_angle(when, lon_grid, lat_grid), dtype=np.float64)
 
 
+def daylight_fraction(when: dt.datetime, width: int = 60, height: int = 32) -> float:
+    """Share of the region in daylight (sun above 2 degrees), on a coarse grid."""
+    return float(np.mean(solar_zenith(width, height, when) < 88.0))
+
+
+def compose_true_color(files: list[Path]) -> np.ndarray:
+    """Daytime true colour at 2 km: averaged native pixels, hybrid green, mild gamma; no Rayleigh fix."""
+    from pyresample.geometry import AreaDefinition
+    from satpy import Scene
+
+    extent, (width, height) = mercator_extent(resolution_m=RESOLUTION_M, **REGION)
+    area = AreaDefinition("indonesia", "Indonesia", "indonesia", "EPSG:3857", width, height, extent)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        scene = Scene(reader="ahi_hsd", filenames=[str(f) for f in files])
+        scene.load(list(VISIBLE_BANDS))
+        local = scene.resample(area, resampler="bucket_avg")
+        refl = {name: np.asarray(local[name].values, dtype=np.float64) / 100.0 for name in VISIBLE_BANDS}
+    green = 0.93 * refl["B02"] + 0.07 * refl["B04"]
+
+    def stretch(x: np.ndarray) -> np.ndarray:
+        return np.sqrt(np.clip(np.nan_to_num(x, nan=0.0), 0.0, 1.0))
+
+    rgb = np.dstack([stretch(refl["B03"]), stretch(green), stretch(refl["B01"])])
+    valid = np.isfinite(refl["B03"]) & np.isfinite(refl["B02"]) & np.isfinite(refl["B01"])
+    return np.dstack([np.round(rgb * 255).astype(np.uint8), (valid * 255).astype(np.uint8)])
+
+
 def read_volcanoes() -> list[dict]:
     """Active volcanoes and their zones from the advisory document; empty when it is missing or invalid."""
     try:
@@ -408,6 +446,7 @@ def base_meta(previous: dict | None) -> dict:
         "height": (previous or {}).get("height"),
         "source": SOURCE,
         "rgb": (previous or {}).get("rgb") or {"image": None, "error": None},
+        "truecolor": (previous or {}).get("truecolor") or {"image": None, "error": None},
         "signal": (previous or {}).get("signal")
         or {"image": None, "error": None, "referenceDays": [], "stats": None},
     }
@@ -419,8 +458,14 @@ def main() -> int:
     out_dir = OUT_DIR
     previous = read_previous(out_dir)
     meta = base_meta(previous)
+    # HIMAWARI_NOW pins the clock for local testing, e.g. to render a daytime scan at night.
+    now = (
+        dt.datetime.fromisoformat(os.environ["HIMAWARI_NOW"])
+        if os.environ.get("HIMAWARI_NOW")
+        else dt.datetime.now(dt.UTC)
+    )
     try:
-        found = find_latest_scan(dt.datetime.now(dt.UTC), SCAN_BANDS)
+        found = find_latest_scan(now, SCAN_BANDS)
         if not found:
             raise RuntimeError("no complete Himawari-9 scan in the last two hours")
         stamp, scan_time, keys = found
@@ -429,11 +474,18 @@ def main() -> int:
             and previous.get("scanTime") == scan_time
             and previous.get("rgb", {}).get("error") is None
             and previous.get("signal", {}).get("error") is None
+            and previous.get("truecolor", {}).get("error") is None
         ):
             log.info("scan %s already rendered", scan_time)
             return 0
         when = dt.datetime.strptime(stamp, "%Y%m%d%H%M").replace(tzinfo=dt.UTC)
         references = find_reference_scans(stamp)
+        daylight = daylight_fraction(when)
+        visible_keys: list[str] = []
+        if daylight >= MIN_DAYLIGHT:
+            scans = complete_scans(list_keys(f"{PREFIX}/{when:%Y/%m/%d}/{when:%H%M}/"), VISIBLE_BANDS)
+            visible_keys = scans.get(stamp, [])
+        true_color: np.ndarray | None = None
         with tempfile.TemporaryDirectory() as tmp:
             bands = render_bands(download(keys, Path(tmp)), SCAN_BANDS)
             refs: list[np.ndarray] = []
@@ -442,6 +494,10 @@ def main() -> int:
                 ref_dir.mkdir()
                 ref_bands = render_bands(download(ref_keys, ref_dir), REFERENCE_BANDS)
                 refs.append(ref_bands["B15"] - ref_bands["B13"])
+            if visible_keys:
+                vis_dir = Path(tmp) / "visible"
+                vis_dir.mkdir()
+                true_color = compose_true_color(download(visible_keys, vis_dir))
         height, width = bands["B13"].shape
         out_dir.mkdir(parents=True, exist_ok=True)
         meta.update({"scanTime": scan_time, "width": width, "height": height})
@@ -449,6 +505,15 @@ def main() -> int:
         save_webp(compose_rgb(bands["B11"], bands["B13"], bands["B15"]), out_dir / RGB_IMAGE)
         meta["rgb"] = {"image": RGB_IMAGE, "error": None}
         log.info("wrote %s for scan %s (%dx%d)", RGB_IMAGE, scan_time, width, height)
+
+        if true_color is not None:
+            save_webp(true_color, out_dir / TRUECOLOR_IMAGE)
+            meta["truecolor"] = {"image": TRUECOLOR_IMAGE, "error": None}
+            log.info("wrote %s (daylight %.0f%%)", TRUECOLOR_IMAGE, daylight * 100)
+        elif daylight < MIN_DAYLIGHT:
+            meta["truecolor"] = {"image": None, "error": "night"}
+        else:
+            meta["truecolor"] = {"image": None, "error": "visible bands not available for this scan"}
 
         try:
             if not refs:

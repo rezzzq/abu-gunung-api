@@ -145,7 +145,7 @@ export function layerPopupHtml(layer: AshLayer, locale: Locale): string {
 export { escapeHtml };
 
 /** Colour key for the Ash RGB or the ash signal view, with the scan time; empty when neither is on. */
-export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "rgb" | "signal" | null, now: Date, locale: Locale): void {
+export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "truecolor" | "rgb" | "signal" | null, now: Date, locale: Locale): void {
   if (!mode || !meta?.scanTime) {
     el.innerHTML = "";
     return;
@@ -154,7 +154,9 @@ export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "r
   const time = t(locale, "rgbTime", { time: formatWibClock(meta.scanTime) });
   const timeRow = `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatWib(meta.scanTime, locale))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`;
   const rows =
-    mode === "rgb"
+    mode === "truecolor"
+      ? [`<div class="legend__row"><span class="legend__note">${t(locale, "trueLegend")}</span></div>`, timeRow]
+      : mode === "rgb"
       ? [
           `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ash"></span><span>${t(locale, "rgbAsh")}</span></div>`,
           `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ice"></span><span>${t(locale, "rgbIce")}</span></div>`,

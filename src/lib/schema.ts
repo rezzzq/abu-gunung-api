@@ -110,6 +110,8 @@ export const himawariSchema = z.object({
   height: z.number().int().positive().nullable().optional(),
   source: z.string(),
   rgb: himawariProductSchema,
+  /** Daytime only; error "night" outside daylight. Older sidecars may lack it. */
+  truecolor: himawariProductSchema.default({ image: null, error: null }),
   signal: himawariProductSchema.extend({
     referenceDays: z.array(z.string()).optional(),
     stats: z.record(z.string(), z.number()).nullable().optional(),

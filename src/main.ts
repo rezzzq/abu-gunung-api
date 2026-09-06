@@ -8,7 +8,7 @@ import { formatWibClock } from "./lib/time";
 import { AshLayer, isHighLayer, type TimeStep } from "./map/ash-layer";
 import { Basemap } from "./map/basemap";
 import { createMap } from "./map/map";
-import { SatelliteLayer, type SatelliteMode } from "./map/satellite-layer";
+import { MODES, SatelliteLayer, type SatelliteMode } from "./map/satellite-layer";
 import { VolcanoMarkers } from "./map/volcano-markers";
 import { fetchWind, renderWindCard, WindLayer, type WindReport } from "./map/wind";
 import { initLocationCheck } from "./ui/location-check";
@@ -39,6 +39,7 @@ const els = {
   bannerRetry: byId<HTMLButtonElement>("banner-retry"),
   toggleSat: byId<HTMLButtonElement>("toggle-sat"),
   satTag: byId<HTMLSpanElement>("sat-tag"),
+  satMenu: byId<HTMLDivElement>("sat-menu"),
   legendSat: byId<HTMLDivElement>("legend-sat"),
   peekSat: byId<HTMLDivElement>("peek-sat"),
   toggleWind: byId<HTMLButtonElement>("toggle-wind"),
@@ -259,14 +260,63 @@ async function loadWind(): Promise<void> {
   windLayer.show(wind, v);
 }
 
-// Satellite view: the control cycles off, Ash RGB, ash signal (each when rendered), infrared.
-const SAT_LABEL: Record<SatelliteMode, "satelliteOff" | "satelliteRgb" | "satelliteSignal" | "satelliteIr"> = {
+// Satellite view: the control opens a menu of views; unavailable ones are shown disabled with the reason.
+const SAT_LABEL = {
   off: "satelliteOff",
+  truecolor: "satelliteTrue",
   rgb: "satelliteRgb",
   signal: "satelliteSignal",
   ir: "satelliteIr",
-};
-const SAT_TAG: Record<SatelliteMode, "tagRgb" | "tagSignal" | "tagIr" | null> = { off: null, rgb: "tagRgb", signal: "tagSignal", ir: "tagIr" };
+} as const satisfies Record<SatelliteMode, string>;
+const SAT_TAG = { off: null, truecolor: "tagTrue", rgb: "tagRgb", signal: "tagSignal", ir: "tagIr" } as const satisfies Record<SatelliteMode, string | null>;
+const SAT_MENU = { off: "menuOff", truecolor: "menuTrue", rgb: "menuRgb", signal: "menuSignal", ir: "menuIr" } as const satisfies Record<SatelliteMode, string>;
+
+function renderSatMenu(): void {
+  const mode = satellite.mode();
+  els.satMenu.innerHTML = "";
+  for (const m of MODES) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "menu__item";
+    b.setAttribute("role", "menuitemradio");
+    b.setAttribute("aria-checked", String(m === mode));
+    const available = satellite.available(m);
+    b.disabled = !available;
+    let hint = "";
+    if (!available) {
+      const reason = m === "off" || m === "ir" ? null : satellite.reason(m);
+      hint = `<span class="menu__hint">${t(locale, reason === "night" ? "hintNight" : "hintUnavailable")}</span>`;
+    }
+    b.innerHTML = `<span>${t(locale, SAT_MENU[m])}</span>${hint}`;
+    b.addEventListener("click", () => {
+      satellite.setMode(m);
+      closeSatMenu();
+      renderSatelliteControl();
+    });
+    els.satMenu.append(b);
+  }
+}
+function closeSatMenu(): void {
+  els.satMenu.hidden = true;
+  els.toggleSat.setAttribute("aria-expanded", "false");
+}
+function openSatMenu(): void {
+  renderSatMenu();
+  els.satMenu.hidden = false;
+  els.toggleSat.setAttribute("aria-expanded", "true");
+  els.satMenu.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus();
+}
+document.addEventListener("click", (e) => {
+  if (els.satMenu.hidden) return;
+  if (e.target instanceof Node && (els.satMenu.contains(e.target) || els.toggleSat.contains(e.target))) return;
+  closeSatMenu();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !els.satMenu.hidden) {
+    closeSatMenu();
+    els.toggleSat.focus();
+  }
+});
 function renderSatelliteControl(): void {
   const mode = satellite.mode();
   ashLayer.setOutlineOnly(mode !== "off");
@@ -281,14 +331,15 @@ function renderSatelliteControl(): void {
   const tag = SAT_TAG[mode];
   els.satTag.hidden = tag === null;
   els.satTag.textContent = tag ? t(locale, tag) : "";
+  if (!els.satMenu.hidden) renderSatMenu();
   const now = new Date();
-  const legendMode = mode === "rgb" || mode === "signal" ? mode : null;
+  const legendMode = mode === "off" || mode === "ir" ? null : mode;
   renderSatLegend(els.legendSat, satellite.productMeta(), legendMode, now, locale);
   renderSatLegend(els.peekSat, satellite.productMeta(), legendMode, now, locale);
 }
 els.toggleSat.addEventListener("click", () => {
-  satellite.setMode(satellite.next());
-  renderSatelliteControl();
+  if (els.satMenu.hidden) openSatMenu();
+  else closeSatMenu();
 });
 
 async function loadHimawari(): Promise<void> {
@@ -300,9 +351,9 @@ async function loadHimawari(): Promise<void> {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const parsed = himawariSchema.safeParse(await res.json());
       if (!parsed.success) throw new Error(parsed.error.message);
-      for (const product of ["rgb", "signal"] as const) {
+      for (const product of ["rgb", "signal", "truecolor"] as const) {
         const error = parsed.data[product].error;
-        if (error) console.warn(`himawari ${product}: pipeline reported ${error}`);
+        if (error && error !== "night") console.warn(`himawari ${product}: pipeline reported ${error}`);
       }
       satellite.setProducts(parsed.data);
     }

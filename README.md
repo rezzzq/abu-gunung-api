@@ -20,9 +20,10 @@ Bahasa Indonesia is the default language; English is one tap away.
   current zone as a dashed outline.
 - PVMBG alert level and the latest VONA (Volcano Observatory Notice for
   Aviation) per volcano from MAGMA Indonesia.
-- Three satellite views of Himawari-9 behind one control: the JMA "Ash RGB"
-  composite, rendered by this project from the raw 2 km data every run
-  (possible ash shows pink, high ice cloud dark, low cloud tan); an
+- Four satellite views of Himawari-9 behind one control with a menu: daytime
+  true colour rendered from the raw 500 m to 1 km visible bands (brown ash and
+  its shadow are plain to see; "night" outside daylight); the JMA "Ash RGB"
+  composite (possible ash pink, high ice cloud dark, low cloud tan); an
   experimental ash signal (amber where the split-window signal is lifted
   above a clear-sky reference, filtered by cloud tests and by proximity to an
   official zone or volcano, see `docs/superpowers/specs/2026-09-06-ash-signal-design.md`);
@@ -53,9 +54,10 @@ src/lib/volcanoes.ts; an advisory's own position wins when present.
 
 scripts/himawari.py    (every 15 min in CI, Python)
   -> raw Himawari-9 bands 3.9/8.6/10.4/12.4 um from the NOAA open-data bucket,
-     plus the same time slot on the previous two days as a clear-sky reference
+     the visible bands by day (about 190 MB per scan), plus the same time slot
+     on the previous two days as a clear-sky reference
   -> resampled to Web Mercator over 95-131E, 12S-7N at 2 km (satpy, pyresample)
-  -> public/data/himawari/ash-rgb.webp, ash-signal.webp, himawari.json  (not committed)
+  -> public/data/himawari/true-color.webp, ash-rgb.webp, ash-signal.webp, himawari.json  (not committed)
   -> data/signal-log.jsonl  one line of signal statistics per scan (committed)
 
 browser
@@ -86,7 +88,8 @@ The Ash RGB view needs Python 3.12 and a few science packages (about 200 MB):
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r scripts/requirements.txt
-python scripts/himawari.py  # writes public/data/himawari/, about 90 s
+python scripts/himawari.py  # writes public/data/himawari/, 90 s at night, about 3 min by day
+HIMAWARI_CACHE_DIR=/tmp/hsd HIMAWARI_NOW=2026-09-06T05:30:00+00:00 python scripts/himawari.py  # keep downloads, pin the clock
 pytest -q                   # Python tests
 ```
 

@@ -56,3 +56,34 @@ def test_mercator_extent_is_symmetric_about_the_equator_and_sized_in_metres() ->
     assert x1 - x0 == pytest.approx(width * 2000.0, rel=1e-3)
     assert y1 - y0 == pytest.approx(height * 2000.0, rel=1e-3)
     assert width == pytest.approx(556, abs=1)  # 10 degrees of longitude is 1113 km at the equator
+
+
+def test_complete_scans_accepts_only_the_native_resolution_of_each_band() -> None:
+    from scripts.himawari import VISIBLE_BANDS, complete_scans
+
+    def vis(band: str, res: str, seg: str) -> str:
+        return f"AHI-L1b-FLDK/2026/09/06/0520/HS_H09_20260906_0520_{band}_FLDK_{res}_{seg}.DAT.bz2"
+
+    keys = []
+    for seg in SEGS:
+        keys += [
+            vis("B01", "R10", seg),
+            vis("B02", "R10", seg),
+            vis("B03", "R05", seg),
+            vis("B04", "R10", seg),
+        ]
+    assert list(complete_scans(keys, VISIBLE_BANDS)) == ["202609060520"]
+    # A red band at the wrong resolution does not count.
+    wrong = [k.replace("B03_FLDK_R05", "B03_FLDK_R20") for k in keys]
+    assert complete_scans(wrong, VISIBLE_BANDS) == {}
+
+
+def test_daylight_fraction_is_high_at_local_noon_and_zero_at_midnight() -> None:
+    import datetime as dt
+
+    from scripts.himawari import daylight_fraction
+
+    noon = dt.datetime(2026, 9, 6, 4, 30, tzinfo=dt.UTC)  # 11:30 WIB
+    midnight = dt.datetime(2026, 9, 6, 17, 0, tzinfo=dt.UTC)  # 00:00 WIB
+    assert daylight_fraction(noon, width=60, height=32) > 0.9
+    assert daylight_fraction(midnight, width=60, height=32) == 0.0
