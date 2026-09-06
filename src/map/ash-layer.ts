@@ -19,9 +19,23 @@ export function isHighLayer(layer: AshLayerData): boolean {
 
 export class AshLayer {
   private readonly group: L.LayerGroup;
+  private outlineOnly = false;
 
   constructor(map: L.Map, private readonly popupHtml: (layer: AshLayerData) => string) {
     this.group = L.layerGroup().addTo(map);
+  }
+
+  /** Thin fills so satellite imagery underneath stays readable; the boundary and taps remain. */
+  setOutlineOnly(outlineOnly: boolean): void {
+    this.outlineOnly = outlineOnly;
+    this.group.eachLayer((layer) => {
+      if (layer instanceof L.Polygon) layer.setStyle({ fillOpacity: this.fillOpacity(layer.options.className?.includes("ash--high") ?? false) });
+    });
+  }
+
+  private fillOpacity(high: boolean): number {
+    if (this.outlineOnly) return high ? 0.12 : 0.06;
+    return high ? 1 : 0.4;
   }
 
   show(step: TimeStep | null): void {
@@ -37,7 +51,7 @@ export class AshLayer {
         weight: 2,
         opacity: 0.95,
         fillColor: high ? "url(#ash-hatch)" : COLORS.amber,
-        fillOpacity: high ? 1 : 0.4,
+        fillOpacity: this.fillOpacity(high),
         className: high ? "ash ash--high" : "ash ash--low",
       });
       polygon.bindPopup(this.popupHtml(layer));

@@ -14,8 +14,10 @@ Bahasa Indonesia is the default language; English is one tap away.
   altitude band (amber for low ash, hatched purple for high ash).
 - PVMBG alert level and the latest VONA (Volcano Observatory Notice for
   Aviation) from MAGMA Indonesia.
-- Himawari-9 infrared satellite imagery from NASA GIBS, refreshed every ten
-  minutes, as a toggle.
+- Two satellite views of Himawari-9 behind one control: the JMA "Ash RGB"
+  composite, rendered by this project from the raw 2 km data every run
+  (possible ash shows pink, high ice cloud dark, low cloud tan), and the clean
+  infrared tiles from NASA GIBS. Both refresh every ten minutes at the source.
 - Wind at four heights above the crater from Open-Meteo, as a card and as
   arrows on the map showing where ash is heading.
 - A "check my location" button that reports the distance to the crater and
@@ -34,10 +36,18 @@ scripts/fetch-data.ts  (every 15 min in CI)
   -> NASA GIBS capabilities                     (latest Himawari frame time)
   -> public/data/latest.json                    (validated by src/lib/schema.ts)
 
+scripts/ash_rgb.py     (every 15 min in CI, Python)
+  -> raw Himawari-9 bands 8.6/10.4/12.4 um from the NOAA open-data bucket
+  -> resampled to Web Mercator over 99-113E, 13S-0 at 2 km (satpy, pyresample)
+  -> public/data/himawari/ash-rgb.webp + ash-rgb.json  (not committed; built each run)
+
 browser
-  -> reads data/latest.json every 5 min
+  -> reads data/latest.json and data/himawari/ash-rgb.json every 5 min
   -> loads satellite tiles and wind directly (both sources allow CORS)
 ```
+
+If the Himawari step fails, it records the error in the JSON and keeps the
+previous image; the satellite control then skips the Ash RGB view.
 
 If a source is down, the script keeps the previous advisory and records the
 problem in `sourceErrors`; the page shows a small warning instead of a blank
@@ -52,6 +62,18 @@ npm run dev       # http://localhost:5173
 npm test
 npm run build     # static site in dist/
 ```
+
+The Ash RGB view needs Python 3.12 and a few science packages (about 200 MB):
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r scripts/requirements.txt
+python scripts/ash_rgb.py   # writes public/data/himawari/, about 20 s
+pytest -q                   # Python tests
+```
+
+Without this step the site still works; the satellite control simply offers
+only the infrared view.
 
 ## Deploy
 

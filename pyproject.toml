@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ANN"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+pythonpath = ["."]

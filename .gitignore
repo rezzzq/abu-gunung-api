@@ -5,3 +5,11 @@ dist
 
 # Local Netlify folder
 .netlify
+
+# Rendered every run in CI, never committed
+public/data/himawari/
+
+# Python
+__pycache__/
+.pytest_cache/
+.ruff_cache/

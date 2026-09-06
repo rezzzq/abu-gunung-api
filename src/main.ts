@@ -1,19 +1,19 @@
 import "leaflet/dist/leaflet.css";
 import "./style.css";
 import L from "leaflet";
-import { DATA_URL, LINKS, REFRESH_MS, VOLCANO, WIND_REFRESH_MS } from "./config";
+import { DATA_URL, HIMAWARI_RGB_URL, LINKS, REFRESH_MS, VOLCANO, WIND_REFRESH_MS } from "./config";
 import { getLocale, setLocale, t, type Locale } from "./i18n";
-import { latestDataSchema, type LatestData } from "./lib/schema";
+import { himawariRgbSchema, latestDataSchema, type LatestData } from "./lib/schema";
 import { formatWibClock } from "./lib/time";
 import { AshLayer, type TimeStep } from "./map/ash-layer";
 import { Basemap } from "./map/basemap";
 import { createMap } from "./map/map";
-import { SatelliteLayer } from "./map/satellite-layer";
+import { SatelliteLayer, type SatelliteMode } from "./map/satellite-layer";
 import { fetchWind, renderWindCard, WindLayer, type WindReport } from "./map/wind";
 import { initLocationCheck } from "./ui/location-check";
 import { initShare } from "./ui/share";
 import { initSheet } from "./ui/sheet";
-import { layerPopupHtml, renderFreshness, renderLegend, renderStatus, renderStepInfo } from "./ui/status-card";
+import { layerPopupHtml, renderFreshness, renderLegend, renderSatLegend, renderStatus, renderStepInfo } from "./ui/status-card";
 import { initTheme } from "./ui/theme";
 import { buildSteps, initTimeChips, type TimeChips } from "./ui/time-chips";
 
@@ -36,6 +36,9 @@ const els = {
   bannerText: byId<HTMLSpanElement>("banner-text"),
   bannerRetry: byId<HTMLButtonElement>("banner-retry"),
   toggleSat: byId<HTMLButtonElement>("toggle-sat"),
+  satTag: byId<HTMLSpanElement>("sat-tag"),
+  legendSat: byId<HTMLDivElement>("legend-sat"),
+  peekSat: byId<HTMLDivElement>("peek-sat"),
   toggleWind: byId<HTMLButtonElement>("toggle-wind"),
   toggleTheme: byId<HTMLButtonElement>("toggle-theme"),
   locate: byId<HTMLButtonElement>("locate"),
@@ -61,8 +64,6 @@ els.title.textContent = t(locale, "appTitle");
 els.lang.textContent = t(locale, "language");
 els.lang.lang = locale === "id" ? "en" : "id";
 els.bannerRetry.textContent = t(locale, "retry");
-els.toggleSat.setAttribute("aria-label", t(locale, "satellite"));
-els.toggleSat.title = t(locale, "satellite");
 els.toggleWind.setAttribute("aria-label", t(locale, "windToggle"));
 els.toggleWind.title = t(locale, "windToggle");
 els.locate.setAttribute("aria-label", t(locale, "locateToggle"));
@@ -137,9 +138,6 @@ function applyData(data: LatestData): void {
   latest = data;
   renderStatus(els.status, els.statusDetail, data, locale);
   renderFreshness(els.freshness, data.generatedAt, new Date(), locale);
-  if (data.satellite?.latestFrameTime) {
-    els.toggleSat.title = t(locale, "satelliteFrame", { time: formatWibClock(data.satellite.latestFrameTime) });
-  }
   // Rebuild the time steps only when the advisory changed, so a poll does not reset the selection.
   if (data.vaac?.header !== previousHeader || !chips) {
     steps = data.vaac ? buildSteps(data.vaac, locale) : [];
@@ -186,19 +184,65 @@ async function loadWind(): Promise<void> {
   windLayer.show(wind);
 }
 
+// Satellite view: the control cycles off, Ash RGB (when rendered), infrared.
+const SAT_LABEL: Record<SatelliteMode, "satelliteOff" | "satelliteRgb" | "satelliteIr"> = {
+  off: "satelliteOff",
+  rgb: "satelliteRgb",
+  ir: "satelliteIr",
+};
+function renderSatelliteControl(): void {
+  const mode = satellite.mode();
+  ashLayer.setOutlineOnly(mode !== "off");
+  document.body.classList.toggle("sat-on", mode !== "off");
+  els.toggleSat.setAttribute("aria-pressed", String(mode !== "off"));
+  els.toggleSat.setAttribute("aria-label", t(locale, SAT_LABEL[mode]));
+  const frame = latest?.satellite?.latestFrameTime;
+  els.toggleSat.title =
+    mode === "ir" && frame ? t(locale, "satelliteFrame", { time: formatWibClock(frame) })
+    : !satellite.rgbAvailable() ? `${t(locale, SAT_LABEL[mode])} · ${t(locale, "rgbUnavailable")}`
+    : t(locale, SAT_LABEL[mode]);
+  els.satTag.hidden = mode === "off";
+  els.satTag.textContent = mode === "rgb" ? t(locale, "tagRgb") : mode === "ir" ? t(locale, "tagIr") : "";
+  const now = new Date();
+  renderSatLegend(els.legendSat, satellite.rgbMeta(), mode === "rgb", now, locale);
+  renderSatLegend(els.peekSat, satellite.rgbMeta(), mode === "rgb", now, locale);
+}
 els.toggleSat.addEventListener("click", () => {
-  satellite.setVisible(!satellite.isVisible());
-  els.toggleSat.setAttribute("aria-pressed", String(satellite.isVisible()));
+  satellite.setMode(satellite.next());
+  renderSatelliteControl();
 });
+
+async function loadRgb(): Promise<void> {
+  try {
+    const res = await fetch(HIMAWARI_RGB_URL, { cache: "no-store" });
+    if (res.status === 404) {
+      satellite.setRgb(null);
+    } else {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const parsed = himawariRgbSchema.safeParse(await res.json());
+      if (!parsed.success) throw new Error(parsed.error.message);
+      if (parsed.data.error) console.warn(`ash rgb: pipeline reported ${parsed.data.error}`);
+      satellite.setRgb(parsed.data);
+    }
+  } catch (e) {
+    // The RGB view is optional; the control simply skips it until the next successful poll.
+    console.warn(`ash rgb: ${e instanceof Error ? e.message : String(e)}`);
+    satellite.setRgb(null);
+  }
+  renderSatelliteControl();
+}
 els.toggleWind.addEventListener("click", () => {
   windLayer.setVisible(!windLayer.isVisible());
   els.toggleWind.setAttribute("aria-pressed", String(windLayer.isVisible()));
 });
 
 // Boot
+renderSatelliteControl();
 void loadData();
+void loadRgb();
 void loadWind();
 window.setInterval(() => void loadData(), REFRESH_MS);
+window.setInterval(() => void loadRgb(), REFRESH_MS);
 window.setInterval(() => void loadWind(), WIND_REFRESH_MS);
 window.setInterval(() => {
   if (latest) renderFreshness(els.freshness, latest.generatedAt, new Date(), locale);

@@ -136,14 +136,27 @@ body.sheet-open .leaflet-control-attribution { display: none; }
 .ctl svg { width: 21px; height: 21px; fill: currentColor; }
 .ctl[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
 .ctl.busy { animation: spin 1.2s linear infinite; }
+/* Names the active satellite view; sits to the left of the round control. */
+.ctl { position: relative; }
+.ctl__tag { position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%); padding: 3px 8px; border-radius: 999px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow); color: var(--ink); font-size: 11px; font-weight: 700; white-space: nowrap; pointer-events: none; }
+.ctl__tag[hidden] { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* Legend */
 .legend { display: none; position: fixed; z-index: 840; background: var(--glass); backdrop-filter: blur(6px); padding: 8px 10px; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; gap: 4px; }
+.legend > div { display: grid; gap: 4px; }
+.legend > div:empty { display: none; }
+#legend-sat:not(:empty) { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--line); }
 .legend__row { display: flex; align-items: center; gap: 8px; }
 .legend__swatch { width: 16px; height: 12px; border-radius: 3px; flex: none; border: 1.5px solid; }
 .legend__swatch--low { background: rgba(224, 138, 30, 0.45); border-color: var(--amber); }
 .legend__swatch--high { background: repeating-linear-gradient(135deg, rgba(109, 40, 217, 0.55) 0 2px, rgba(109, 40, 217, 0.12) 2px 5px); border-color: var(--plume); }
+/* Outlines get a little heavier when the fill is thinned for satellite views. */
+body.sat-on path.ash { stroke-width: 2.5px; }
+.legend__swatch--rgb-ash { background: #e8a0c8; border-color: #c76fa8; }
+.legend__swatch--rgb-ice { background: #14351f; border-color: #0b1f12; }
+.legend__swatch--rgb-low { background: #d9c9a3; border-color: #b8a57a; }
+.legend__alt--stale { color: var(--warn); }
 .legend__swatch--volcano { width: 12px; height: 12px; border-radius: 50%; background: var(--navy); border: 1.5px solid var(--amber); margin: 0 3px; }
 .legend__alt { font-family: var(--font-data); color: var(--ink-mute); font-size: 11px; }
 

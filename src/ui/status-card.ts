@@ -1,8 +1,8 @@
-import { STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
+import { RGB_STALE_MIN, STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
 import { compassName, levelLabel, t, vonaColorLabel, type Locale } from "../i18n";
 import { formatAltitude, formatKm } from "../lib/flight-level";
-import type { AshLayer, LatestData } from "../lib/schema";
-import { formatRelative, formatWib, minutesBetween } from "../lib/time";
+import type { AshLayer, HimawariRgb, LatestData } from "../lib/schema";
+import { formatRelative, formatWib, formatWibClock, minutesBetween } from "../lib/time";
 import { isHighLayer, type TimeStep } from "../map/ash-layer";
 
 function escapeHtml(s: string): string {
@@ -129,3 +129,20 @@ export function layerPopupHtml(layer: AshLayer, locale: Locale): string {
 }
 
 export { escapeHtml };
+
+/** Colour key for the Ash RGB view, with the scan time; empty when the view is off. */
+export function renderSatLegend(el: HTMLElement, meta: HimawariRgb | null, active: boolean, now: Date, locale: Locale): void {
+  if (!active || !meta?.scanTime) {
+    el.innerHTML = "";
+    return;
+  }
+  const stale = minutesBetween(meta.scanTime, now) > RGB_STALE_MIN;
+  const time = t(locale, "rgbTime", { time: formatWibClock(meta.scanTime) });
+  const rows = [
+    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ash"></span><span>${t(locale, "rgbAsh")}</span></div>`,
+    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ice"></span><span>${t(locale, "rgbIce")}</span></div>`,
+    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-low"></span><span>${t(locale, "rgbLow")}</span></div>`,
+    `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatWib(meta.scanTime, locale))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`,
+  ];
+  el.innerHTML = rows.join("");
+}
