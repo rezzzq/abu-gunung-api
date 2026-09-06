@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from scripts.ash_rgb import compose_rgb, mercator_extent, pick_latest_scan, scale_band
+from scripts.himawari import compose_rgb, mercator_extent, pick_latest_scan, scale_band
 
 
 def key(scan: str, band: str, seg: str) -> str:

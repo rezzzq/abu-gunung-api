@@ -96,16 +96,24 @@ export const latestDataSchema = z.object({
   sourceErrors: z.array(z.string()),
 });
 
-/** Sidecar written by scripts/ash_rgb.py next to the Himawari-9 Ash RGB image. */
-export const himawariRgbSchema = z.object({
-  scanTime: isoDateTime.nullable(),
-  generatedAt: isoDateTime,
-  bounds: z.object({ west: z.number(), south: z.number(), east: z.number(), north: z.number() }),
-  width: z.number().int().positive().optional(),
-  height: z.number().int().positive().optional(),
+const himawariProductSchema = z.object({
   image: z.string().min(1).nullable(),
-  source: z.string(),
   error: z.string().nullable(),
+});
+
+/** Sidecar written by scripts/himawari.py next to the Ash RGB and ash signal images. */
+export const himawariSchema = z.object({
+  generatedAt: isoDateTime,
+  scanTime: isoDateTime.nullable(),
+  bounds: z.object({ west: z.number(), south: z.number(), east: z.number(), north: z.number() }),
+  width: z.number().int().positive().nullable().optional(),
+  height: z.number().int().positive().nullable().optional(),
+  source: z.string(),
+  rgb: himawariProductSchema,
+  signal: himawariProductSchema.extend({
+    referenceDays: z.array(z.string()).optional(),
+    stats: z.record(z.string(), z.number()).nullable().optional(),
+  }),
 });
 
 export type LonLat = z.infer<typeof lonLatSchema>;
@@ -118,4 +126,4 @@ export type VonaEntry = z.infer<typeof vonaSchema>;
 export type VolcanoStatus = z.infer<typeof volcanoStatusSchema>;
 export type SatelliteInfo = z.infer<typeof satelliteSchema>;
 export type LatestData = z.infer<typeof latestDataSchema>;
-export type HimawariRgb = z.infer<typeof himawariRgbSchema>;
+export type Himawari = z.infer<typeof himawariSchema>;

@@ -40,8 +40,8 @@ export const SATELLITE = {
   rgbAttribution: 'Himawari-9 &copy; JMA via <a href="https://registry.opendata.aws/noaa-himawari/">NOAA Open Data</a>',
 };
 
-/** Sidecar for the Ash RGB image rendered by scripts/ash_rgb.py; absent when the pipeline has not run. */
-export const HIMAWARI_RGB_URL = `${import.meta.env.BASE_URL}data/himawari/ash-rgb.json`;
+/** Sidecar for the images rendered by scripts/himawari.py; absent when the pipeline has not run. */
+export const HIMAWARI_URL = `${import.meta.env.BASE_URL}data/himawari/himawari.json`;
 /** An Ash RGB scan older than this is flagged as stale in the legend. */
 export const RGB_STALE_MIN = 90;
 

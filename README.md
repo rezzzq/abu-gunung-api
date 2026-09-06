@@ -20,10 +20,15 @@ Bahasa Indonesia is the default language; English is one tap away.
   current zone as a dashed outline.
 - PVMBG alert level and the latest VONA (Volcano Observatory Notice for
   Aviation) per volcano from MAGMA Indonesia.
-- Two satellite views of Himawari-9 behind one control: the JMA "Ash RGB"
+- Three satellite views of Himawari-9 behind one control: the JMA "Ash RGB"
   composite, rendered by this project from the raw 2 km data every run
-  (possible ash shows pink, high ice cloud dark, low cloud tan), and the clean
-  infrared tiles from NASA GIBS. Both refresh every ten minutes at the source.
+  (possible ash shows pink, high ice cloud dark, low cloud tan); an
+  experimental ash signal (amber where the split-window signal is lifted
+  above a clear-sky reference, filtered by cloud tests and by proximity to an
+  official zone or volcano, see `docs/superpowers/specs/2026-09-06-ash-signal-design.md`);
+  and the clean infrared tiles from NASA GIBS. All refresh every ten minutes
+  at the source. The signal is off by default and labelled experimental: thick
+  cloud and mountains can trigger it.
 - Wind at four heights above the selected crater from Open-Meteo, as a card
   and as arrows on the map showing where ash is heading.
 - A "check my location" button that reports the distance to the selected
@@ -46,18 +51,20 @@ scripts/fetch-data.ts  (every 15 min in CI)
 Volcano identities, MAGMA codes and fallback positions live in
 src/lib/volcanoes.ts; an advisory's own position wins when present.
 
-scripts/ash_rgb.py     (every 15 min in CI, Python)
-  -> raw Himawari-9 bands 8.6/10.4/12.4 um from the NOAA open-data bucket
-  -> resampled to Web Mercator over 99-113E, 13S-0 at 2 km (satpy, pyresample)
-  -> public/data/himawari/ash-rgb.webp + ash-rgb.json  (not committed; built each run)
+scripts/himawari.py    (every 15 min in CI, Python)
+  -> raw Himawari-9 bands 3.9/8.6/10.4/12.4 um from the NOAA open-data bucket,
+     plus the same time slot on the previous two days as a clear-sky reference
+  -> resampled to Web Mercator over 95-131E, 12S-7N at 2 km (satpy, pyresample)
+  -> public/data/himawari/ash-rgb.webp, ash-signal.webp, himawari.json  (not committed)
+  -> data/signal-log.jsonl  one line of signal statistics per scan (committed)
 
 browser
-  -> reads data/latest.json and data/himawari/ash-rgb.json every 5 min
+  -> reads data/latest.json and data/himawari/himawari.json every 5 min
   -> loads satellite tiles and wind directly (both sources allow CORS)
 ```
 
 If the Himawari step fails, it records the error in the JSON and keeps the
-previous image; the satellite control then skips the Ash RGB view.
+previous images; the satellite control then skips the affected views.
 
 If the VAAC mirror is down, the script keeps the previous volcano list; if
 MAGMA is down it keeps the previous levels and VONAs. Either way it records
@@ -79,7 +86,7 @@ The Ash RGB view needs Python 3.12 and a few science packages (about 200 MB):
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r scripts/requirements.txt
-python scripts/ash_rgb.py   # writes public/data/himawari/, about 20 s
+python scripts/himawari.py  # writes public/data/himawari/, about 90 s
 pytest -q                   # Python tests
 ```
 

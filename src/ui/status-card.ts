@@ -1,7 +1,7 @@
 import { RGB_STALE_MIN, STALE_BAD_MIN, STALE_WARN_MIN } from "../config";
 import { compassName, levelLabel, t, vonaColorLabel, type Locale } from "../i18n";
 import { formatAltitude, formatKm } from "../lib/flight-level";
-import type { AshLayer, HimawariRgb, VolcanoStatus } from "../lib/schema";
+import type { AshLayer, Himawari, VolcanoStatus } from "../lib/schema";
 import { formatRelative, formatWib, formatWibClock, minutesBetween } from "../lib/time";
 import { isHighLayer, type TimeStep } from "../map/ash-layer";
 
@@ -144,19 +144,27 @@ export function layerPopupHtml(layer: AshLayer, locale: Locale): string {
 
 export { escapeHtml };
 
-/** Colour key for the Ash RGB view, with the scan time; empty when the view is off. */
-export function renderSatLegend(el: HTMLElement, meta: HimawariRgb | null, active: boolean, now: Date, locale: Locale): void {
-  if (!active || !meta?.scanTime) {
+/** Colour key for the Ash RGB or the ash signal view, with the scan time; empty when neither is on. */
+export function renderSatLegend(el: HTMLElement, meta: Himawari | null, mode: "rgb" | "signal" | null, now: Date, locale: Locale): void {
+  if (!mode || !meta?.scanTime) {
     el.innerHTML = "";
     return;
   }
   const stale = minutesBetween(meta.scanTime, now) > RGB_STALE_MIN;
   const time = t(locale, "rgbTime", { time: formatWibClock(meta.scanTime) });
-  const rows = [
-    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ash"></span><span>${t(locale, "rgbAsh")}</span></div>`,
-    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ice"></span><span>${t(locale, "rgbIce")}</span></div>`,
-    `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-low"></span><span>${t(locale, "rgbLow")}</span></div>`,
-    `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatWib(meta.scanTime, locale))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`,
-  ];
+  const timeRow = `<div class="legend__row"><span class="legend__alt${stale ? " legend__alt--stale" : ""}" title="${escapeHtml(formatWib(meta.scanTime, locale))}">${escapeHtml(time)}${stale ? ` · ${t(locale, "rgbStale")}` : ""}</span></div>`;
+  const rows =
+    mode === "rgb"
+      ? [
+          `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ash"></span><span>${t(locale, "rgbAsh")}</span></div>`,
+          `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-ice"></span><span>${t(locale, "rgbIce")}</span></div>`,
+          `<div class="legend__row"><span class="legend__swatch legend__swatch--rgb-low"></span><span>${t(locale, "rgbLow")}</span></div>`,
+          timeRow,
+        ]
+      : [
+          `<div class="legend__row"><span class="legend__ramp" aria-hidden="true"></span><span>${t(locale, "signalLegend")} <span class="legend__alt">${t(locale, "signalWeak")} → ${t(locale, "signalStrong")}</span></span></div>`,
+          `<div class="legend__row"><span class="legend__note">${t(locale, "signalCaveat")}</span></div>`,
+          timeRow,
+        ];
   el.innerHTML = rows.join("");
 }

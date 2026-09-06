@@ -25,7 +25,7 @@ minutes after scan time.
 
 ## Pipeline
 
-`scripts/ash_rgb.py`, Python 3.12, runs in the GitHub Actions workflow before
+`scripts/himawari.py` (formerly ash_rgb.py), Python 3.12, runs in the GitHub Actions workflow before
 the site build:
 
 1. List the bucket for the current and previous UTC hour, pick the newest scan

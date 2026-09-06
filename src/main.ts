@@ -1,9 +1,9 @@
 import "leaflet/dist/leaflet.css";
 import "./style.css";
 import L from "leaflet";
-import { DATA_URL, FOCUS_MAX_ZOOM, HIMAWARI_RGB_URL, LINKS, REFRESH_MS, WIND_REFRESH_MS } from "./config";
+import { DATA_URL, FOCUS_MAX_ZOOM, HIMAWARI_URL, LINKS, REFRESH_MS, WIND_REFRESH_MS } from "./config";
 import { getLocale, setLocale, t, type Locale } from "./i18n";
-import { himawariRgbSchema, latestDataSchema, type LatestData, type VolcanoStatus } from "./lib/schema";
+import { himawariSchema, latestDataSchema, type LatestData, type VolcanoStatus } from "./lib/schema";
 import { formatWibClock } from "./lib/time";
 import { AshLayer, isHighLayer, type TimeStep } from "./map/ash-layer";
 import { Basemap } from "./map/basemap";
@@ -259,12 +259,14 @@ async function loadWind(): Promise<void> {
   windLayer.show(wind, v);
 }
 
-// Satellite view: the control cycles off, Ash RGB (when rendered), infrared.
-const SAT_LABEL: Record<SatelliteMode, "satelliteOff" | "satelliteRgb" | "satelliteIr"> = {
+// Satellite view: the control cycles off, Ash RGB, ash signal (each when rendered), infrared.
+const SAT_LABEL: Record<SatelliteMode, "satelliteOff" | "satelliteRgb" | "satelliteSignal" | "satelliteIr"> = {
   off: "satelliteOff",
   rgb: "satelliteRgb",
+  signal: "satelliteSignal",
   ir: "satelliteIr",
 };
+const SAT_TAG: Record<SatelliteMode, "tagRgb" | "tagSignal" | "tagIr" | null> = { off: null, rgb: "tagRgb", signal: "tagSignal", ir: "tagIr" };
 function renderSatelliteControl(): void {
   const mode = satellite.mode();
   ashLayer.setOutlineOnly(mode !== "off");
@@ -274,35 +276,40 @@ function renderSatelliteControl(): void {
   const frame = latest?.satellite?.latestFrameTime;
   els.toggleSat.title =
     mode === "ir" && frame ? t(locale, "satelliteFrame", { time: formatWibClock(frame) })
-    : !satellite.rgbAvailable() ? `${t(locale, SAT_LABEL[mode])} · ${t(locale, "rgbUnavailable")}`
+    : !satellite.available("rgb") ? `${t(locale, SAT_LABEL[mode])} · ${t(locale, "rgbUnavailable")}`
     : t(locale, SAT_LABEL[mode]);
-  els.satTag.hidden = mode === "off";
-  els.satTag.textContent = mode === "rgb" ? t(locale, "tagRgb") : mode === "ir" ? t(locale, "tagIr") : "";
+  const tag = SAT_TAG[mode];
+  els.satTag.hidden = tag === null;
+  els.satTag.textContent = tag ? t(locale, tag) : "";
   const now = new Date();
-  renderSatLegend(els.legendSat, satellite.rgbMeta(), mode === "rgb", now, locale);
-  renderSatLegend(els.peekSat, satellite.rgbMeta(), mode === "rgb", now, locale);
+  const legendMode = mode === "rgb" || mode === "signal" ? mode : null;
+  renderSatLegend(els.legendSat, satellite.productMeta(), legendMode, now, locale);
+  renderSatLegend(els.peekSat, satellite.productMeta(), legendMode, now, locale);
 }
 els.toggleSat.addEventListener("click", () => {
   satellite.setMode(satellite.next());
   renderSatelliteControl();
 });
 
-async function loadRgb(): Promise<void> {
+async function loadHimawari(): Promise<void> {
   try {
-    const res = await fetch(HIMAWARI_RGB_URL, { cache: "no-store" });
+    const res = await fetch(HIMAWARI_URL, { cache: "no-store" });
     if (res.status === 404) {
-      satellite.setRgb(null);
+      satellite.setProducts(null);
     } else {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const parsed = himawariRgbSchema.safeParse(await res.json());
+      const parsed = himawariSchema.safeParse(await res.json());
       if (!parsed.success) throw new Error(parsed.error.message);
-      if (parsed.data.error) console.warn(`ash rgb: pipeline reported ${parsed.data.error}`);
-      satellite.setRgb(parsed.data);
+      for (const product of ["rgb", "signal"] as const) {
+        const error = parsed.data[product].error;
+        if (error) console.warn(`himawari ${product}: pipeline reported ${error}`);
+      }
+      satellite.setProducts(parsed.data);
     }
   } catch (e) {
-    // The RGB view is optional; the control simply skips it until the next successful poll.
-    console.warn(`ash rgb: ${e instanceof Error ? e.message : String(e)}`);
-    satellite.setRgb(null);
+    // The satellite products are optional; the control simply skips them until the next successful poll.
+    console.warn(`himawari: ${e instanceof Error ? e.message : String(e)}`);
+    satellite.setProducts(null);
   }
   renderSatelliteControl();
 }
@@ -314,9 +321,9 @@ els.toggleWind.addEventListener("click", () => {
 // Boot
 renderSatelliteControl();
 void loadData();
-void loadRgb();
+void loadHimawari();
 window.setInterval(() => void loadData(), REFRESH_MS);
-window.setInterval(() => void loadRgb(), REFRESH_MS);
+window.setInterval(() => void loadHimawari(), REFRESH_MS);
 window.setInterval(() => {
   windCache.clear();
   void loadWind();

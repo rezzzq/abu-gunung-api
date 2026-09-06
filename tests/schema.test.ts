@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { himawariRgbSchema, latestDataSchema, layerSchema } from "../src/lib/schema";
+import { himawariSchema, latestDataSchema, layerSchema } from "../src/lib/schema";
 
 const validLayer = {
   baseFl: 0,
@@ -59,29 +59,31 @@ describe("schema", () => {
   });
 });
 
-describe("himawariRgbSchema", () => {
+describe("himawariSchema", () => {
   const meta = {
-    scanTime: "2026-09-06T09:20:00Z",
-    generatedAt: "2026-09-06T09:36:13Z",
-    bounds: { west: 99, south: -13, east: 113, north: 0 },
-    width: 779,
-    height: 730,
-    image: "ash-rgb.webp",
-    source: "Himawari-9 AHI via NOAA Open Data (JMA Ash RGB recipe)",
-    error: null,
+    generatedAt: "2026-09-06T11:00:02Z",
+    scanTime: "2026-09-06T10:40:00Z",
+    bounds: { west: 95, south: -12, east: 131, north: 7 },
+    width: 2004,
+    height: 1063,
+    source: "Himawari-9 AHI via NOAA Open Data",
+    rgb: { image: "ash-rgb.webp", error: null },
+    signal: { image: "ash-signal.webp", error: null, referenceDays: ["2026-09-05", "2026-09-04"], stats: { keptPixels: 3134, blobsKept: 71 } },
   };
 
-  it("accepts a rendered scan", () => {
-    expect(himawariRgbSchema.safeParse(meta).success).toBe(true);
+  it("accepts a rendered scan with both products", () => {
+    expect(himawariSchema.safeParse(meta).success).toBe(true);
   });
 
-  it("accepts a failure record that kept no image", () => {
-    const failed = { ...meta, scanTime: null, image: null, width: undefined, height: undefined, error: "HTTPError: 503" };
-    expect(himawariRgbSchema.safeParse(failed).success).toBe(true);
+  it("accepts a failed signal next to a good RGB, and a failed run with no images", () => {
+    const partial = { ...meta, signal: { image: null, error: "RuntimeError: no reference scan", referenceDays: [], stats: null } };
+    expect(himawariSchema.safeParse(partial).success).toBe(true);
+    const failed = { ...meta, scanTime: null, width: null, height: null, rgb: { image: null, error: "HTTPError: 503" }, signal: { image: null, error: null } };
+    expect(himawariSchema.safeParse(failed).success).toBe(true);
   });
 
   it("rejects bounds that are not numbers and a bad scan time", () => {
-    expect(himawariRgbSchema.safeParse({ ...meta, bounds: { ...meta.bounds, west: "99" } }).success).toBe(false);
-    expect(himawariRgbSchema.safeParse({ ...meta, scanTime: "today" }).success).toBe(false);
+    expect(himawariSchema.safeParse({ ...meta, bounds: { ...meta.bounds, west: "95" } }).success).toBe(false);
+    expect(himawariSchema.safeParse({ ...meta, scanTime: "today" }).success).toBe(false);
   });
 });
