@@ -259,6 +259,8 @@ img.ash-signal { image-rendering: auto; }
 .airport__body { display: grid; gap: 1px; min-width: 0; }
 .airport__name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .airport__meta { font-size: 12px; color: var(--ink-mute); font-family: var(--font-data); }
+.airport__site { color: var(--ink-soft); font-family: var(--font-ui); font-weight: 600; }
+.airports__official a { color: var(--ink); font-weight: 600; }
 .airport__state { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
 .airport--ash .airport__state { background: var(--amber); color: var(--navy); }
 .airport--closed .airport__state { background: var(--bad); color: #fff; }

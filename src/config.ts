@@ -54,6 +54,9 @@ export function openMeteoUrl(lat: number, lon: number): string {
 }
 
 export const LINKS = {
+  /** Operator of the large Indonesian airports and the civil aviation authority: official announcements. */
+  airportsOperator: "https://injourneyairports.id/",
+  dgca: "https://hubud.dephub.go.id/",
   magma: "https://magma.esdm.go.id/v1/gunung-api/informasi-letusan",
   bmkg: "https://www.bmkg.go.id/",
   vaac: "http://www.bom.gov.au/aviation/volcanic-ash/",

@@ -114,6 +114,7 @@ export const airportStatusSchema = z.object({
   city: z.string().min(1),
   lat: z.number().min(-90).max(90),
   lon: z.number().min(-180).max(180),
+  site: z.string().url().optional(),
   observedAt: isoDateTime.nullable(),
   raw: z.string().nullable(),
   visibilityM: z.number().nullable(),
