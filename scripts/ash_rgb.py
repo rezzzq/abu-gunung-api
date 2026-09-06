@@ -1,4 +1,4 @@
-"""Build the Himawari-9 Ash RGB overlay for the Sunda Strait region.
+"""Build the Himawari-9 Ash RGB overlay for Indonesia.
 
 Downloads the latest raw AHI scan (bands 8.6, 10.4 and 12.4 um) from the NOAA
 open-data bucket, resamples it to a Web Mercator grid and writes the JMA Ash
@@ -26,13 +26,14 @@ import numpy as np
 BUCKET = "https://noaa-himawari9.s3.amazonaws.com"
 PREFIX = "AHI-L1b-FLDK"
 BANDS = ("B11", "B13", "B15")
-SEGMENTS = ("S0610", "S0710")
+# Full-disk segments 5-7 cover about 10 N to 20 S at Indonesian longitudes.
+SEGMENTS = ("S0510", "S0610", "S0710")
 FILE_RE = re.compile(
     r"HS_H09_(?P<date>\d{8})_(?P<time>\d{4})_(?P<band>B\d{2})_FLDK_R20_(?P<segment>S\d{4})\.DAT\.bz2$"
 )
 
-# Longitude 99..113 E and latitude 13 S..0 at about 2 km: Sumatra's south, Java's west and the strait.
-REGION = {"west": 99.0, "south": -13.0, "east": 113.0, "north": 0.0}
+# Longitude 95..131 E and latitude 12 S..7 N at about 2 km: Sumatra to Halmahera, all listed volcanoes.
+REGION = {"west": 95.0, "south": -12.0, "east": 131.0, "north": 7.0}
 RESOLUTION_M = 2000.0
 EARTH_RADIUS_M = 6378137.0
 
@@ -128,7 +129,7 @@ def render(files: list[Path]) -> np.ndarray:
     from satpy import Scene
 
     extent, (width, height) = mercator_extent(resolution_m=RESOLUTION_M, **REGION)
-    area = AreaDefinition("sunda", "Sunda Strait", "sunda", "EPSG:3857", width, height, extent)
+    area = AreaDefinition("indonesia", "Indonesia", "indonesia", "EPSG:3857", width, height, extent)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         scene = Scene(reader="ahi_hsd", filenames=[str(f) for f in files])

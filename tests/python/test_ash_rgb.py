@@ -8,20 +8,21 @@ def key(scan: str, band: str, seg: str) -> str:
     return f"AHI-L1b-FLDK/2026/09/06/{scan}/HS_H09_20260906_{scan}_{band}_FLDK_R20_{seg}.DAT.bz2"
 
 
+SEGS = ("S0510", "S0610", "S0710")
+
+
 def test_pick_latest_scan_needs_every_band_and_segment() -> None:
-    keys = [key("0500", b, s) for b in ("B11", "B13", "B15") for s in ("S0610", "S0710")]
-    keys += [key("0510", b, s) for b in ("B11", "B13") for s in ("S0610", "S0710")]  # B15 missing
+    keys = [key("0500", b, s) for b in ("B11", "B13", "B15") for s in SEGS]
+    keys += [key("0510", b, s) for b in ("B11", "B13") for s in SEGS]  # B15 missing
     keys += [key("0510", "B15", "S0610")]
     scan, files = pick_latest_scan(keys)
     assert scan == "2026-09-06T05:00:00Z"
-    assert len(files) == 6
+    assert len(files) == 9
     assert all("_0500_" in f for f in files)
 
 
 def test_pick_latest_scan_ignores_other_resolutions_and_returns_none_when_empty() -> None:
-    keys = [
-        key("0500", b, s).replace("R20", "R10") for b in ("B11", "B13", "B15") for s in ("S0610", "S0710")
-    ]
+    keys = [key("0500", b, s).replace("R20", "R10") for b in ("B11", "B13", "B15") for s in SEGS]
     assert pick_latest_scan(keys) is None
     assert pick_latest_scan([]) is None
 
