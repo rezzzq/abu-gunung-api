@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T12:08:13Z",
+  "generatedAt": "2026-09-06T13:17:42Z",
   "volcanoes": [
     {
       "id": "KRA",
@@ -485,46 +485,42 @@
       "elevationM": 1229,
       "region": "Halmahera, Maluku Utara",
       "vaac": {
-        "header": "FVAU01 ADRM 060700",
-        "issuedAt": "2026-09-06T07:00:00Z",
+        "header": "FVAU01 ADRM 061300",
+        "issuedAt": "2026-09-06T13:00:00Z",
         "volcano": "DUKONO 268010",
         "position": {
           "lat": 1.7,
           "lon": 127.9
         },
         "elevationM": 1229,
-        "advisoryNumber": "2026/717",
+        "advisoryNumber": "2026/718",
         "infoSource": "HIMAWARI-9",
         "eruptionDetails": "VA TO FL070 LAST OBS AT 06/0250Z MOV NE",
-        "remarks": "VA CURRENTLY UNIDENTIFIABLE ON LATEST SATELLITE IMAGERY DUE TO MET CLOUD, HOWEVER EMISSIONS IS EXPECTED TO BE ONGOING. VA HEIGHT AND MOVEMENT BASED ON HIMAWARI-9 SATELLITE IMAGERY AND MODEL GUIDANCE.",
-        "nextAdvisoryBy": "2026-09-06T13:00:00Z",
+        "remarks": "VA NOT IDENTIFIABLE ON CURRENT SATELLITE IMAGERY. MET CLD OBSC AREA. VA HEIGHT AND MOV BASED ON LAST SATELLITE OBS AND MODEL GUIDANCE.",
+        "nextAdvisoryBy": "2026-09-06T19:00:00Z",
         "observation": {
           "kind": "EST",
-          "time": "2026-09-06T06:40:00Z",
+          "time": "2026-09-06T12:40:00Z",
           "layers": [
             {
               "baseFl": 0,
               "topFl": 70,
               "polygon": [
                 [
-                  127.9833,
-                  1.6167
-                ],
-                [
                   127.8,
-                  1.6167
+                  1.6333
                 ],
                 [
-                  127.4833,
-                  2.35
+                  127.5333,
+                  2.4667
                 ],
                 [
-                  127.8333,
-                  2.5333
+                  128.3,
+                  2.4833
                 ],
                 [
-                  128.35,
-                  2.3167
+                  128,
+                  1.6333
                 ]
               ],
               "movement": {
@@ -537,27 +533,27 @@
         "forecasts": [
           {
             "hoursAhead": 6,
-            "time": "2026-09-06T12:40:00Z",
+            "time": "2026-09-06T18:40:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 70,
                 "polygon": [
                   [
-                    127.8167,
+                    127.8,
                     1.6333
                   ],
                   [
                     127.5333,
-                    2.4833
-                  ],
-                  [
-                    128.3167,
                     2.4667
                   ],
                   [
+                    128.3,
+                    2.4833
+                  ],
+                  [
                     128,
-                    1.65
+                    1.6333
                   ]
                 ],
                 "movement": null
@@ -566,39 +562,6 @@
           },
           {
             "hoursAhead": 12,
-            "time": "2026-09-06T18:40:00Z",
-            "layers": [
-              {
-                "baseFl": 0,
-                "topFl": 70,
-                "polygon": [
-                  [
-                    127.8167,
-                    1.6
-                  ],
-                  [
-                    127.4333,
-                    2.2833
-                  ],
-                  [
-                    127.8,
-                    2.5167
-                  ],
-                  [
-                    128.25,
-                    2.3667
-                  ],
-                  [
-                    128,
-                    1.6
-                  ]
-                ],
-                "movement": null
-              }
-            ]
-          },
-          {
-            "hoursAhead": 18,
             "time": "2026-09-07T00:40:00Z",
             "layers": [
               {
@@ -610,16 +573,45 @@
                     1.6333
                   ],
                   [
-                    127.4833,
+                    127.5333,
                     2.4667
                   ],
                   [
-                    128.3833,
+                    128.3,
                     2.4833
                   ],
                   [
                     128,
-                    1.6
+                    1.6333
+                  ]
+                ],
+                "movement": null
+              }
+            ]
+          },
+          {
+            "hoursAhead": 18,
+            "time": "2026-09-07T06:40:00Z",
+            "layers": [
+              {
+                "baseFl": 0,
+                "topFl": 70,
+                "polygon": [
+                  [
+                    127.8,
+                    1.6333
+                  ],
+                  [
+                    127.5333,
+                    2.4667
+                  ],
+                  [
+                    128.3,
+                    2.4833
+                  ],
+                  [
+                    128,
+                    1.6333
                   ]
                 ],
                 "movement": null
@@ -627,7 +619,7 @@
             ]
           }
         ],
-        "raw": "FVAU01 ADRM 060700\nVA ADVISORY\nDTG: 20260906/0700Z\nVAAC: DARWIN\nVOLCANO: DUKONO 268010\nPSN: N0142 E12754\nAREA: INDONESIA\nSOURCE ELEV: 1229M AMSL\nADVISORY NR: 2026/717\nINFO SOURCE: HIMAWARI-9\nERUPTION DETAILS: VA TO FL070 LAST OBS AT 06/0250Z MOV NE\nEST VA DTG: 06/0640Z\nEST VA CLD: SFC/FL070 N0137 E12759 - N0137 E12748 - N0221\n        E12729 - N0232 E12750 - N0219 E12821 MOV N 05KT\nFCST VA CLD +6 HR: 06/1240Z SFC/FL070 N0138 E12749 - N0229\n        E12732 - N0228 E12819 - N0139 E12800\nFCST VA CLD +12 HR: 06/1840Z SFC/FL070 N0136 E12749 - N0217\n        E12726 - N0231 E12748 - N0222 E12815 - N0136 E12800\nFCST VA CLD +18 HR: 07/0040Z SFC/FL070 N0138 E12748 - N0228\n        E12729 - N0229 E12823 - N0136 E12800\nRMK: VA CURRENTLY UNIDENTIFIABLE ON LATEST SATELLITE IMAGERY\n        DUE TO MET CLOUD, HOWEVER EMISSIONS IS EXPECTED TO BE\n        ONGOING. VA HEIGHT AND MOVEMENT BASED ON HIMAWARI-9\n        SATELLITE IMAGERY AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260906/1300Z="
+        "raw": "FVAU01 ADRM 061300\nVA ADVISORY\nDTG: 20260906/1300Z\nVAAC: DARWIN\nVOLCANO: DUKONO 268010\nPSN: N0142 E12754\nAREA: INDONESIA\nSOURCE ELEV: 1229M AMSL\nADVISORY NR: 2026/718\nINFO SOURCE: HIMAWARI-9\nERUPTION DETAILS: VA TO FL070 LAST OBS AT 06/0250Z MOV NE\nEST VA DTG: 06/1240Z\nEST VA CLD: SFC/FL070 N0138 E12748 - N0228 E12732 - N0229\n        E12818 - N0138 E12800 MOV N 05KT\nFCST VA CLD +6 HR: 06/1840Z SFC/FL070 N0138 E12748 - N0228\n        E12732 - N0229 E12818 - N0138 E12800\nFCST VA CLD +12 HR: 07/0040Z SFC/FL070 N0138 E12748 - N0228\n        E12732 - N0229 E12818 - N0138 E12800\nFCST VA CLD +18 HR: 07/0640Z SFC/FL070 N0138 E12748 - N0228\n        E12732 - N0229 E12818 - N0138 E12800\nRMK: VA NOT IDENTIFIABLE ON CURRENT SATELLITE IMAGERY. MET\n        CLD OBSC AREA. VA HEIGHT AND MOV BASED ON LAST SATELLITE OBS\n        AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260906/1900Z="
       },
       "active": true,
       "activityLevel": {
@@ -991,38 +983,6 @@
       "latestVona": null
     },
     {
-      "id": "LWK",
-      "name": "Lewotobi Laki-laki",
-      "gvp": null,
-      "lat": -8.539,
-      "lon": 122.775,
-      "elevationM": 1584,
-      "region": "Flores, NTT",
-      "vaac": null,
-      "active": false,
-      "activityLevel": {
-        "level": 3,
-        "name": "Siaga"
-      },
-      "latestVona": null
-    },
-    {
-      "id": "MER",
-      "name": "Merapi",
-      "gvp": null,
-      "lat": -7.54,
-      "lon": 110.446,
-      "elevationM": 2910,
-      "region": "Jawa Tengah / DIY",
-      "vaac": null,
-      "active": false,
-      "activityLevel": {
-        "level": 3,
-        "name": "Siaga"
-      },
-      "latestVona": null
-    },
-    {
       "id": "SIN",
       "name": "Sinabung",
       "gvp": "261080",
@@ -1076,10 +1036,12 @@
       "latestVona": null
     }
   ],
-  "magmaFetchedAt": "2026-09-06T12:08:13Z",
+  "magmaFetchedAt": null,
   "satellite": {
     "layer": "Himawari_AHI_Band13_Clean_Infrared",
-    "latestFrameTime": "2026-09-06T11:00:00Z"
+    "latestFrameTime": "2026-09-06T12:20:00Z"
   },
-  "sourceErrors": []
+  "sourceErrors": [
+    "magma: vona: HTTP 502"
+  ]
 }
