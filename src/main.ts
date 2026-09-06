@@ -12,7 +12,7 @@ import { fetchWind, renderWindCard, WindLayer, type WindReport } from "./map/win
 import { initLocationCheck } from "./ui/location-check";
 import { initShare } from "./ui/share";
 import { initSheet } from "./ui/sheet";
-import { escapeHtml, layerPopupHtml, renderFreshness, renderLegend, renderStatus, renderStepInfo } from "./ui/status-card";
+import { layerPopupHtml, renderFreshness, renderLegend, renderStatus, renderStepInfo } from "./ui/status-card";
 import { buildSteps, initTimeChips, type TimeChips } from "./ui/time-chips";
 
 function byId<T extends HTMLElement>(id: string): T {
@@ -139,6 +139,7 @@ function applyData(data: LatestData): void {
   }
 }
 
+/** Safe for untrusted text: the message is set as textContent, never parsed as HTML. */
 function showBanner(message: string): void {
   els.bannerText.textContent = message;
   els.banner.hidden = false;
@@ -155,7 +156,7 @@ async function loadData(): Promise<void> {
   } catch (e) {
     // Keep whatever is on screen; tell the user and offer a retry.
     const reason = e instanceof Error ? e.message : String(e);
-    showBanner(`${t(locale, "loadError")} (${escapeHtml(reason)})`);
+    showBanner(`${t(locale, "loadError")} (${reason})`);
   }
 }
 
@@ -166,7 +167,9 @@ let wind: WindReport | null = null;
 async function loadWind(): Promise<void> {
   try {
     wind = await fetchWind(new Date());
-  } catch {
+  } catch (e) {
+    // Wind is a secondary layer; the card shows "unavailable" and the map keeps working.
+    console.warn(`wind: ${e instanceof Error ? e.message : String(e)}`);
     wind = null;
   }
   renderWindCard(els.windCard, wind, locale);

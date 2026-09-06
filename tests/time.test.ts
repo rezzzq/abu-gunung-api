@@ -9,6 +9,12 @@ describe("parseDtg", () => {
   it("returns null on garbage", () => {
     expect(parseDtg("soon")).toBeNull();
   });
+
+  it("rejects out-of-range hours, minutes and days instead of rolling them over", () => {
+    expect(parseDtg("20260906/0360Z")).toBeNull();
+    expect(parseDtg("20260906/2400Z")).toBeNull();
+    expect(parseDtg("20260231/1200Z")).toBeNull();
+  });
 });
 
 describe("resolveDayTime", () => {

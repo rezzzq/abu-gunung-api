@@ -9,6 +9,7 @@ export function parseDtg(value: string): Date | null {
   const m = DTG_RE.exec(value.trim());
   if (!m) return null;
   const [year, month, day, hour, minute] = m.slice(1, 6).map(Number);
+  if (hour! > 23 || minute! > 59) return null;
   const t = Date.UTC(year!, month! - 1, day!, hour!, minute!);
   if (Number.isNaN(t)) return null;
   const d = new Date(t);
