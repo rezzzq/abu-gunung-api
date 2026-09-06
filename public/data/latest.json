@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T03:18:21Z",
+  "generatedAt": "2026-09-06T03:49:23Z",
   "volcano": {
     "name": "Anak Krakatau",
     "lat": -6.102,
@@ -7,45 +7,45 @@
     "elevationM": 155
   },
   "vaac": {
-    "header": "FVAU04 ADRM 060030",
-    "issuedAt": "2026-09-06T00:30:00Z",
+    "header": "FVAU04 ADRM 060330",
+    "issuedAt": "2026-09-06T03:30:00Z",
     "volcano": "KRAKATAU 262000",
-    "advisoryNumber": "2026/183",
+    "advisoryNumber": "2026/184",
     "infoSource": "HIMAWARI-9 CVGHM",
-    "eruptionDetails": "VA TO FL500 MOV W, VA TO FL200 MOV E",
-    "remarks": "HIGH LEVEL VA TO FL500 MOV W AND CONTINUOUS VA TO FL200 MOV E. VA HEIGHT AND MOV BASED ON SATELLITE IMAGERY AND FCST BASED ON DISPERSION MODELS.",
-    "nextAdvisoryBy": "2026-09-06T03:30:00Z",
+    "eruptionDetails": "VA TO FL500 MOV SW, VA TO FL200 MOV W",
+    "remarks": "HIGH LEVEL VA TO FL500 IS NOW DETATCHED FROM THE VOLCANO AND MOVING SW. CONTINUOUS VA EMISSION TO FL200 MOV W, WITH REMNANTS OF VA FROM EARLIER ERUPTION ALSO DRIFTING E. VA HEIGHT AND FORECAST BASED ON SATELLITE IMAGERY AND DISPERSION MODEL GIUIDANCE.",
+    "nextAdvisoryBy": "2026-09-06T06:30:00Z",
     "observation": {
       "kind": "OBS",
-      "time": "2026-09-06T00:10:00Z",
+      "time": "2026-09-06T03:10:00Z",
       "layers": [
         {
           "baseFl": 0,
           "topFl": 200,
           "polygon": [
             [
-              107,
-              -5.0667
+              107.95,
+              -4.7
             ],
             [
-              110.1167,
-              -6.6833
+              110.0833,
+              -6.7333
             ],
             [
-              109.2333,
-              -9.0167
+              107.8667,
+              -10.8833
             ],
             [
-              105.0167,
-              -10
+              100.0167,
+              -10.6667
             ],
             [
-              101.7833,
-              -7.4667
+              102.05,
+              -4.35
             ]
           ],
           "movement": {
-            "direction": "E",
+            "direction": "W",
             "speedKt": 10
           }
         },
@@ -54,37 +54,33 @@
           "topFl": 500,
           "polygon": [
             [
-              106.2833,
-              -7.2333
-            ],
-            [
-              100.4167,
-              -10.5167
-            ],
-            [
-              96.6667,
-              -17.5167
-            ],
-            [
-              79.1,
-              -12.05
-            ],
-            [
-              86.6667,
-              -2.85
+              104.65,
+              -7.2667
             ],
             [
               100.3333,
-              -0.3833
+              -10.6333
             ],
             [
-              107,
-              -5.0667
+              96.3,
+              -19.2667
+            ],
+            [
+              76.7667,
+              -14.6833
+            ],
+            [
+              85.6,
+              -2.75
+            ],
+            [
+              100.3,
+              -2.0167
             ]
           ],
           "movement": {
-            "direction": "W",
-            "speedKt": 30
+            "direction": "SW",
+            "speedKt": 20
           }
         }
       ]
@@ -92,99 +88,31 @@
     "forecasts": [
       {
         "hoursAhead": 6,
-        "time": "2026-09-06T06:10:00Z",
+        "time": "2026-09-06T09:10:00Z",
         "layers": [
           {
             "baseFl": 0,
             "topFl": 200,
             "polygon": [
               [
-                106.9,
-                -5.0333
-              ],
-              [
-                110.0833,
-                -6.7333
-              ],
-              [
-                109.2667,
-                -9.05
-              ],
-              [
-                105.0167,
-                -9.95
-              ],
-              [
-                101.8333,
-                -7.5167
-              ]
-            ],
-            "movement": null
-          },
-          {
-            "baseFl": 0,
-            "topFl": 500,
-            "polygon": [
-              [
-                106.4167,
-                -7.2833
-              ],
-              [
-                100.3333,
-                -10.6333
-              ],
-              [
-                96.3,
-                -19.2667
-              ],
-              [
-                76.7667,
-                -14.6833
-              ],
-              [
-                85.6,
-                -2.75
-              ],
-              [
-                100.3333,
-                -0.3833
-              ],
-              [
-                106.9667,
-                -5
-              ]
-            ],
-            "movement": null
-          }
-        ]
-      },
-      {
-        "hoursAhead": 12,
-        "time": "2026-09-06T12:10:00Z",
-        "layers": [
-          {
-            "baseFl": 0,
-            "topFl": 200,
-            "polygon": [
-              [
-                106.95,
-                -4.9833
+                108.0167,
+                -4.8
               ],
               [
                 110.15,
                 -6.7
               ],
               [
-                109.2833,
-                -9.0833
+                106.7333,
+                -10.8833
               ],
               [
-                105,
-                -9.9833
+                100.75,
+                -10.0167
               ],
               [
-                101.75,
-                -7.45
+                99.3667,
+                -4.3167
               ]
             ],
             "movement": null
@@ -194,8 +122,8 @@
             "topFl": 500,
             "polygon": [
               [
-                106.3667,
-                -7.25
+                103.4833,
+                -8.3333
               ],
               [
                 100.4167,
@@ -214,12 +142,8 @@
                 -2.75
               ],
               [
-                100.3833,
-                -0.4167
-              ],
-              [
-                107.0333,
-                -5.0667
+                97.1333,
+                -2.1833
               ]
             ],
             "movement": null
@@ -227,32 +151,32 @@
         ]
       },
       {
-        "hoursAhead": 18,
-        "time": "2026-09-06T18:10:00Z",
+        "hoursAhead": 12,
+        "time": "2026-09-06T15:10:00Z",
         "layers": [
           {
             "baseFl": 0,
             "topFl": 200,
             "polygon": [
               [
-                107.1,
-                -5.1
+                107.9667,
+                -4.7667
               ],
               [
-                110.1333,
-                -6.75
+                109.25,
+                -6.55
               ],
               [
-                109.3167,
-                -9.05
+                107.0167,
+                -10.65
               ],
               [
-                104.9667,
-                -10.0333
+                100.6833,
+                -10.6
               ],
               [
-                101.9167,
-                -7.4
+                97.5,
+                -4.0333
               ]
             ],
             "movement": null
@@ -262,8 +186,8 @@
             "topFl": 500,
             "polygon": [
               [
-                106.35,
-                -7.25
+                102.9833,
+                -10.1167
               ],
               [
                 100.4333,
@@ -274,20 +198,92 @@
                 -22.05
               ],
               [
-                75.85,
-                -15.6333
+                76.2167,
+                -17.4667
               ],
               [
-                84.65,
-                -2.9667
+                76.1167,
+                -14.15
               ],
               [
-                100.4333,
-                -0.25
+                84.2167,
+                -2.7167
               ],
               [
-                106.9333,
-                -5.1
+                97.1833,
+                -2.0833
+              ]
+            ],
+            "movement": null
+          }
+        ]
+      },
+      {
+        "hoursAhead": 18,
+        "time": "2026-09-06T21:10:00Z",
+        "layers": [
+          {
+            "baseFl": 0,
+            "topFl": 200,
+            "polygon": [
+              [
+                106.8833,
+                -6.7833
+              ],
+              [
+                106.1667,
+                -11.1167
+              ],
+              [
+                100.4,
+                -10.65
+              ],
+              [
+                97.3167,
+                -4.3167
+              ],
+              [
+                105.8333,
+                -4.4167
+              ]
+            ],
+            "movement": null
+          },
+          {
+            "baseFl": 0,
+            "topFl": 500,
+            "polygon": [
+              [
+                102.9833,
+                -10.1167
+              ],
+              [
+                100.3,
+                -10.6
+              ],
+              [
+                96.2833,
+                -19.0833
+              ],
+              [
+                94.8333,
+                -24.4333
+              ],
+              [
+                76.1167,
+                -19.9333
+              ],
+              [
+                76.0667,
+                -14.15
+              ],
+              [
+                84.1667,
+                -2.7167
+              ],
+              [
+                97.1333,
+                -2.1833
               ]
             ],
             "movement": null
@@ -295,10 +291,10 @@
         ]
       }
     ],
-    "raw": "FVAU04 ADRM 060030\nVA ADVISORY\nDTG: 20260906/0030Z\nVAAC: DARWIN\nVOLCANO: KRAKATAU 262000\nPSN: S0606 E10525\nAREA: INDONESIA\nSOURCE ELEV: 155M AMSL\nADVISORY NR: 2026/183\nINFO SOURCE: HIMAWARI-9 CVGHM\nERUPTION DETAILS: VA TO FL500 MOV W, VA TO FL200 MOV E\nOBS VA DTG: 06/0010Z\nOBS VA CLD: SFC/FL200 S0504 E10700 - S0641 E11007 - S0901\n        E10914 - S1000 E10501 - S0728 E10147 MOV E 10KT SFC/FL500\n        S0714 E10617 - S1031 E10025 - S1731 E09640 - S1203 E07906 -\n        S0251 E08640 - S0023 E10020 - S0504 E10700 MOV W 30KT\nFCST VA CLD +6 HR: 06/0610Z SFC/FL200 S0502 E10654 - S0644\n        E11005 - S0903 E10916 - S0957 E10501 - S0731 E10150\n        SFC/FL500 S0717 E10625 - S1038 E10020 - S1916 E09618 - S1441\n        E07646 - S0245 E08536 - S0023 E10020 - S0500 E10658\nFCST VA CLD +12 HR: 06/1210Z SFC/FL200 S0459 E10657 - S0642\n        E11009 - S0905 E10917 - S0959 E10500 - S0727 E10145\n        SFC/FL500 S0715 E10622 - S1028 E10025 - S2011 E09559 - S1358\n        E07600 - S0245 E08419 - S0025 E10023 - S0504 E10702\nFCST VA CLD +18 HR: 06/1810Z SFC/FL200 S0506 E10706 - S0645\n        E11008 - S0903 E10919 - S1002 E10458 - S0724 E10155\n        SFC/FL500 S0715 E10621 - S1032 E10026 - S2203 E09511 - S1538\n        E07551 - S0258 E08439 - S0015 E10026 - S0506 E10656\nRMK: HIGH LEVEL VA TO FL500 MOV W AND CONTINUOUS VA TO FL200\n        MOV E. VA HEIGHT AND MOV BASED ON SATELLITE IMAGERY AND FCST\n        BASED ON DISPERSION MODELS.\nNXT ADVISORY: NO LATER THAN 20260906/0330Z="
+    "raw": "FVAU04 ADRM 060330\nVA ADVISORY\nDTG: 20260906/0330Z\nVAAC: DARWIN\nVOLCANO: KRAKATAU 262000\nPSN: S0606 E10525\nAREA: INDONESIA\nSOURCE ELEV: 155M AMSL\nADVISORY NR: 2026/184\nINFO SOURCE: HIMAWARI-9 CVGHM\nERUPTION DETAILS: VA TO FL500 MOV SW, VA TO FL200 MOV W\nOBS VA DTG: 06/0310Z\nOBS VA CLD: SFC/FL200 S0442 E10757 - S0644 E11005 - S1053\n        E10752 - S1040 E10001 - S0421 E10203 MOV W 10KT SFC/FL500\n        S0716 E10439 - S1038 E10020 - S1916 E09618 - S1441 E07646 -\n        S0245 E08536 - S0201 E10018 MOV SW 20KT\nFCST VA CLD +6 HR: 06/0910Z SFC/FL200 S0448 E10801 - S0642\n        E11009 - S1053 E10644 - S1001 E10045 - S0419 E09922\n        SFC/FL500 S0820 E10329 - S1028 E10025 - S2011 E09559 - S1358\n        E07600 - S0245 E08419 - S0211 E09708\nFCST VA CLD +12 HR: 06/1510Z SFC/FL200 S0446 E10758 - S0633\n        E10915 - S1039 E10701 - S1036 E10041 - S0402 E09730\n        SFC/FL500 S1007 E10259 - S1032 E10026 - S2203 E09511 - S1728\n        E07613 - S1409 E07607 - S0243 E08413 - S0205 E09711\nFCST VA CLD +18 HR: 06/2110Z SFC/FL200 S0647 E10653 - S1107\n        E10610 - S1039 E10024 - S0419 E09719 - S0425 E10550\n        SFC/FL500 S1007 E10259 - S1036 E10018 - S1905 E09617 - S2426\n        E09450 - S1956 E07607 - S1409 E07604 - S0243 E08410 - S0211\n        E09708\nRMK: HIGH LEVEL VA TO FL500 IS NOW DETATCHED FROM THE\n        VOLCANO AND MOVING SW. CONTINUOUS VA EMISSION TO FL200 MOV\n        W, WITH REMNANTS OF VA FROM EARLIER ERUPTION ALSO DRIFTING\n        E. VA HEIGHT AND FORECAST BASED ON SATELLITE IMAGERY AND\n        DISPERSION MODEL GIUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260906/0630Z="
   },
   "magma": {
-    "fetchedAt": "2026-09-06T03:18:21Z",
+    "fetchedAt": "2026-09-06T03:49:23Z",
     "activityLevel": {
       "level": 3,
       "name": "Siaga"
@@ -313,7 +309,7 @@
   },
   "satellite": {
     "layer": "Himawari_AHI_Band13_Clean_Infrared",
-    "latestFrameTime": "2026-09-06T02:00:00Z"
+    "latestFrameTime": "2026-09-06T02:50:00Z"
   },
   "sourceErrors": []
 }

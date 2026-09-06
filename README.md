@@ -52,16 +52,30 @@ npm run build     # static site in dist/
 
 ## Deploy
 
-The included GitHub Actions workflow refreshes the data every 15 minutes,
-commits it, builds the site and deploys it to GitHub Pages.
+Production runs on Netlify at https://abu-krakatau.netlify.app. The GitHub
+Actions workflow in `.github/workflows/update-and-deploy.yml` runs on every
+push to `main`, every 15 minutes, and on demand. Each run fetches fresh data,
+commits it, runs the tests, builds the site and deploys `dist/` to Netlify with
+the Netlify CLI. CLI deploys do not use Netlify build minutes.
 
-1. Push the repository to GitHub with `main` as the default branch.
-2. In the repository settings, under Pages, set the source to "GitHub
-   Actions".
-3. Run the workflow once from the Actions tab (or push a commit).
-4. For a custom domain such as `abu.niriksagara.id`, add a `public/CNAME`
-   file containing the host name and point a CNAME DNS record at
-   `<user>.github.io`.
+The workflow needs two repository secrets:
+
+| Secret | Value |
+| --- | --- |
+| `NETLIFY_SITE_ID` | The site's API ID from the Netlify project settings |
+| `NETLIFY_AUTH_TOKEN` | A Netlify personal access token (User settings, Applications) |
+
+To deploy from your own machine instead:
+
+```bash
+npx netlify-cli login
+npx netlify-cli link          # pick the abu-krakatau project
+npm run fetch && npm run build
+npx netlify-cli deploy --prod --dir=dist
+```
+
+For a custom domain such as `abu.niriksagara.id`, add the domain in the
+Netlify project settings and create the DNS record Netlify shows you.
 
 The build uses a relative base path, so `dist/` also works on any other static
 host or under a sub-path of an existing site.
