@@ -203,6 +203,7 @@ a { color: var(--ink); }
   .sheet { max-height: none; flex: 1; border-radius: 18px 18px 0 0; }
   .sheet--collapsed { max-height: none; }
   .sheet--collapsed .sheet__body { visibility: visible; }
+  .sheet--collapsed .sheet__scroll { overflow-y: auto; }
   .sheet__handle { display: none; }
   .legend { left: auto; right: 12px; bottom: 24px; }
   .map-controls { top: calc(12px + var(--safe-top)); }
