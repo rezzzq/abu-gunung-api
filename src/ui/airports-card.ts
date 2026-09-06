@@ -24,10 +24,17 @@ export function renderAirportsCard(el: HTMLElement, airports: AirportStatus[], v
     el.innerHTML = "";
     return;
   }
+  const anyNotam = rows.some(({ airport }) => airport.notam !== null);
   const items = rows.map(({ airport, km }) => {
-    const state = airport.observedAt === null ? "none" : airport.ash ? "ash" : "clear";
-    const label = t(locale, state === "ash" ? "airportAsh" : state === "clear" ? "airportClear" : "airportNoReport");
+    const closed = airport.notam?.closed ?? false;
+    const state = closed ? "closed" : airport.observedAt === null ? "none" : airport.ash ? "ash" : "clear";
+    const label = closed
+      ? airport.notam?.closedUntil
+        ? t(locale, "airportClosedUntil", { time: formatWibClock(airport.notam.closedUntil) })
+        : t(locale, "airportClosed")
+      : t(locale, state === "ash" ? "airportAsh" : state === "clear" ? "airportClear" : "airportNoReport");
     const details: string[] = [];
+    if (airport.notam && !closed) details.push(t(locale, airport.notam.ashNotam ? "airportAshNotam" : "airportOpen"));
     if (airport.visibilityM !== null) {
       const kmText = airport.visibilityM >= 10000 ? "≥ 10" : (airport.visibilityM / 1000).toFixed(airport.visibilityM % 1000 ? 1 : 0).replace(".", locale === "id" ? "," : ".");
       details.push(t(locale, "airportVisibility", { km: kmText }));
@@ -39,5 +46,5 @@ export function renderAirportsCard(el: HTMLElement, airports: AirportStatus[], v
       <span class="airport__state">${escapeHtml(label)}</span>
     </li>`;
   });
-  el.innerHTML = `<h2>${t(locale, "airports")}</h2><ul class="airports">${items.join("")}</ul><p class="hint">${t(locale, "airportsHint")}</p>`;
+  el.innerHTML = `<h2>${t(locale, "airports")}</h2><ul class="airports">${items.join("")}</ul><p class="hint">${t(locale, anyNotam ? "airportsHintNotam" : "airportsHint")}</p>`;
 }

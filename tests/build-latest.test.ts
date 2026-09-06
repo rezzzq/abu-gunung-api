@@ -59,7 +59,15 @@ const metarsOk = {
     { icao: "WARR", raw: "METAR WARR 061300Z 12008KT 4000 HZ FEW020 27/22 Q1014 NOSIG" },
   ],
 };
-const base = { now, vaacPartialFailures: [] as string[], magma: magmaOk, satellite: satOk, metars: metarsOk, previous: null };
+const base = {
+  now,
+  vaacPartialFailures: [] as string[],
+  magma: magmaOk,
+  satellite: satOk,
+  metars: metarsOk,
+  notams: { status: "skipped" as const },
+  previous: null,
+};
 
 describe("buildLatest", () => {
   it("lists one entry per volcano, newest advisory each, active ones first by ash top", () => {
@@ -136,6 +144,16 @@ describe("buildLatest airports", () => {
     const bdo = d.airports.find((a) => a.icao === "WICC")!;
     expect(bdo).toMatchObject({ iata: "BDO", ash: false, visibilityM: null, observedAt: null, raw: null });
     expect(d.airports.length).toBeGreaterThan(10);
+  });
+
+  it("attaches NOTAM facts when the API answered and keeps them when it later fails", () => {
+    const notam = { closed: true, closedUntil: "2026-09-06T16:00:00Z", ashNotam: true, notams: [] };
+    const withNotam = buildLatest({ ...base, advisories: { status: "ok", value: [krakatau] }, notams: { status: "ok", value: [{ icao: "WIII", status: notam }] } });
+    expect(withNotam.airports.find((a) => a.icao === "WIII")?.notam).toEqual(notam);
+    expect(withNotam.airports.find((a) => a.icao === "WARR")?.notam).toBeNull();
+    const later = buildLatest({ ...base, previous: withNotam, advisories: { status: "ok", value: [krakatau] }, notams: { status: "failed", error: "HTTP 500" } });
+    expect(later.airports.find((a) => a.icao === "WIII")?.notam?.closed).toBe(true);
+    expect(later.sourceErrors.some((e) => e.startsWith("notam: kept previous"))).toBe(true);
   });
 
   it("keeps the previous reports when the METAR fetch failed", () => {

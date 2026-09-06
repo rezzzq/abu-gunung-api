@@ -1,6 +1,7 @@
 import { AIRPORTS } from "./airports";
 import { latestVonaFor, type VonaWithVolcano } from "./magma-parser";
 import { parseMetar } from "./metar-parser";
+import type { NotamStatus } from "./notam-parser";
 import {
   latestDataSchema,
   type ActivityLevel,
@@ -28,6 +29,11 @@ export interface RawMetar {
   raw: string;
 }
 
+export interface NotamResult {
+  icao: string;
+  status: NotamStatus;
+}
+
 export interface BuildInput {
   now: Date;
   /** Every advisory parsed from every VAAC file. */
@@ -38,11 +44,13 @@ export interface BuildInput {
   satellite: SourceResult<SatelliteInfo>;
   /** Latest METAR per reporting airport; airports without a report are simply absent. */
   metars: SourceResult<RawMetar[]>;
+  /** NOTAM facts per airport; "skipped" when no API key is configured. */
+  notams: SourceResult<NotamResult[]> | { status: "skipped" };
   previous: LatestData | null;
 }
 
 /** Every airport in the table, with its parsed report when one exists. */
-function buildAirports(metars: RawMetar[], now: Date): AirportStatus[] {
+function buildAirports(metars: RawMetar[], now: Date, notams: Map<string, NotamStatus> | null): AirportStatus[] {
   const byIcao = new Map(metars.map((m) => [m.icao, m.raw]));
   return AIRPORTS.map((a) => {
     const raw = byIcao.get(a.icao) ?? null;
@@ -54,6 +62,7 @@ function buildAirports(metars: RawMetar[], now: Date): AirportStatus[] {
       visibilityM: report?.visibilityM ?? null,
       weather: report?.weather ?? [],
       ash: report?.ash ?? false,
+      notam: notams?.get(a.icao) ?? null,
     };
   });
 }
@@ -168,10 +177,18 @@ export function buildLatest(input: BuildInput): LatestData {
   if (input.satellite.status === "ok") satellite = input.satellite.value;
   else errors.push(`satellite: ${input.satellite.error}`);
 
+  let notams: Map<string, NotamStatus> | null = null;
+  if (input.notams.status === "ok") notams = new Map(input.notams.value.map((n) => [n.icao, n.status]));
+  else if (input.notams.status === "failed") {
+    // Keep yesterday's facts rather than showing nothing: a stale closure is flagged by its end time.
+    notams = new Map((input.previous?.airports ?? []).flatMap((a) => (a.notam ? [[a.icao, a.notam] as const] : [])));
+    errors.push(`notam: ${notams.size ? "kept previous NOTAMs because fetch failed: " : ""}${input.notams.error}`);
+  }
+
   let airports: AirportStatus[];
-  if (input.metars.status === "ok") airports = buildAirports(input.metars.value, input.now);
+  if (input.metars.status === "ok") airports = buildAirports(input.metars.value, input.now, notams);
   else {
-    airports = input.previous?.airports ?? buildAirports([], input.now);
+    airports = input.previous?.airports?.map((a) => ({ ...a, notam: notams?.get(a.icao) ?? a.notam })) ?? buildAirports([], input.now, notams);
     errors.push(
       input.previous?.airports?.length
         ? `metar: kept previous airport reports because fetch failed: ${input.metars.error}`

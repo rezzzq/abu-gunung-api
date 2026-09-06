@@ -261,6 +261,7 @@ img.ash-signal { image-rendering: auto; }
 .airport__meta { font-size: 12px; color: var(--ink-mute); font-family: var(--font-data); }
 .airport__state { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.02em; white-space: nowrap; }
 .airport--ash .airport__state { background: var(--amber); color: var(--navy); }
+.airport--closed .airport__state { background: var(--bad); color: #fff; }
 .airport--clear .airport__state { background: var(--abu); color: var(--ok); }
 .airport--none .airport__state { background: var(--abu); color: var(--ink-mute); }
 .card[hidden] { display: none; }

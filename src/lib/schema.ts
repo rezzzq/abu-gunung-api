@@ -101,6 +101,25 @@ export const airportStatusSchema = z.object({
   weather: z.array(z.string()),
   /** Volcanic ash reported at, blowing over, or near the airport. False also when there is no report. */
   ash: z.boolean(),
+  /** NOTAM facts from the FAA NOTAM API; null when the API key is not configured or the fetch failed. */
+  notam: z
+    .object({
+      closed: z.boolean(),
+      closedUntil: isoDateTime.nullable(),
+      ashNotam: z.boolean(),
+      notams: z.array(
+        z.object({
+          number: z.string(),
+          start: isoDateTime.nullable(),
+          end: isoDateTime.nullable(),
+          closure: z.boolean(),
+          ash: z.boolean(),
+          text: z.string(),
+        }),
+      ),
+    })
+    .nullable()
+    .default(null),
 });
 
 export const latestDataSchema = z.object({

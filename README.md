@@ -32,8 +32,9 @@ Bahasa Indonesia is the default language; English is one tap away.
   cloud and mountains can trigger it.
 - The nearest airports to the selected volcano with their latest METAR
   weather report: whether volcanic ash is reported at the airport, the
-  visibility and the report time. This is not the official open or closed
-  status; that comes from NOTAMs, which need an FAA API key.
+  visibility and the report time. With an FAA NOTAM API key configured (see
+  Deploy) the card also shows the official closed status from NOTAMs, with
+  the closure end time.
 - Wind at four heights above the selected crater from Open-Meteo, as a card
   and as arrows on the map showing where ash is heading.
 - A "check my location" button that reports the distance to the selected
@@ -116,6 +117,18 @@ The workflow needs two repository secrets:
 | --- | --- |
 | `NETLIFY_SITE_ID` | The site's API ID from the Netlify project settings |
 | `NETLIFY_AUTH_TOKEN` | A Netlify personal access token (User settings, Applications) |
+
+Two optional secrets switch on airport closure status from NOTAMs. Create a
+free account at https://api.faa.gov, register an application with access to
+the NOTAM API, then add its credentials:
+
+| Secret | Value |
+| --- | --- |
+| `FAA_NOTAM_CLIENT_ID` | The application's client id |
+| `FAA_NOTAM_CLIENT_SECRET` | The application's client secret |
+
+Without them the fetch step skips NOTAMs and the airports card shows weather
+reports only.
 
 To deploy from your own machine instead:
 

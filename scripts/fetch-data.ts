@@ -8,7 +8,15 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { AIRPORTS } from "../src/lib/airports";
-import { buildLatest, extractLatestFrameTime, type MagmaSnapshot, type RawMetar, type SourceResult } from "../src/lib/build-latest";
+import {
+  buildLatest,
+  extractLatestFrameTime,
+  type MagmaSnapshot,
+  type NotamResult,
+  type RawMetar,
+  type SourceResult,
+} from "../src/lib/build-latest";
+import { summarizeNotams } from "../src/lib/notam-parser";
 import { parseActivityLevels, parseVonas } from "../src/lib/magma-parser";
 import { latestDataSchema, type Advisory, type LatestData, type SatelliteInfo } from "../src/lib/schema";
 import { parseAllAdvisories } from "../src/lib/vaa-parser";
@@ -20,6 +28,10 @@ const MAGMA_LEVEL_URL = "https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivita
 const MAGMA_VONA_URL = "https://magma.esdm.go.id/v1/vona";
 const GIBS_CAPS_URL = "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/1.0.0/WMTSCapabilities.xml";
 const GIBS_LAYER = "Himawari_AHI_Band13_Clean_Infrared";
+// FAA NOTAM API: needs a free developer key (client id and secret) in the environment.
+const NOTAM_URL = "https://external-api.faa.gov/notamapi/v1/notams";
+const NOTAM_CLIENT_ID = process.env.FAA_NOTAM_CLIENT_ID;
+const NOTAM_CLIENT_SECRET = process.env.FAA_NOTAM_CLIENT_SECRET;
 // NOAA Aviation Weather Center: latest METAR per station, no key needed.
 const METAR_URL = `https://aviationweather.gov/api/data/metar?format=json&ids=${AIRPORTS.map((a) => a.icao).join(",")}`;
 // MAGMA answers 403 to non-browser user agents. Identify the project after the browser token.
@@ -102,6 +114,29 @@ async function fetchMetars(): Promise<SourceResult<RawMetar[]>> {
   }
 }
 
+/** One request per airport; the API pages at 50 items, more than any airport carries. */
+async function fetchNotams(now: Date): Promise<SourceResult<NotamResult[]> | { status: "skipped" }> {
+  if (!NOTAM_CLIENT_ID || !NOTAM_CLIENT_SECRET) return { status: "skipped" };
+  const headers = { client_id: NOTAM_CLIENT_ID, client_secret: NOTAM_CLIENT_SECRET, "user-agent": USER_AGENT };
+  const results: NotamResult[] = [];
+  const failures: string[] = [];
+  for (const airport of AIRPORTS) {
+    const url = `${NOTAM_URL}?icaoLocation=${airport.icao}&responseFormat=geoJson&pageSize=50`;
+    try {
+      const res = await fetch(url, { headers, signal: AbortSignal.timeout(20_000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const body: unknown = await res.json();
+      const items = typeof body === "object" && body !== null && Array.isArray((body as { items?: unknown }).items) ? (body as { items: unknown[] }).items : [];
+      results.push({ icao: airport.icao, status: summarizeNotams(items, now) });
+    } catch (e) {
+      failures.push(`${airport.icao}: ${errorMessage(e)}`);
+    }
+  }
+  if (!results.length) return { status: "failed", error: failures.join("; ") || "no airports answered" };
+  if (failures.length) console.error(`warning: notam: ${failures.join("; ")}`);
+  return { status: "ok", value: results };
+}
+
 /** A missing or invalid previous file is a normal state (first run), not an error. */
 async function readPrevious(): Promise<LatestData | null> {
   let text: string;
@@ -122,12 +157,13 @@ async function readPrevious(): Promise<LatestData | null> {
 
 async function main(): Promise<void> {
   const now = new Date();
-  const [previous, vaac, magma, satellite, metars] = await Promise.all([
+  const [previous, vaac, magma, satellite, metars, notams] = await Promise.all([
     readPrevious(),
     fetchVaac(),
     fetchMagma(),
     fetchSatellite(),
     fetchMetars(),
+    fetchNotams(now),
   ]);
   const data = buildLatest({
     now,
@@ -136,6 +172,7 @@ async function main(): Promise<void> {
     magma,
     satellite,
     metars,
+    notams,
     previous,
   });
   await mkdir(dirname(OUT), { recursive: true });
@@ -145,7 +182,10 @@ async function main(): Promise<void> {
     .map((v) => `${v.id}${v.active ? "*" : ""}(L${v.activityLevel?.level ?? "?"})`)
     .join(" ");
   const ashAirports = data.airports.filter((a) => a.ash).map((a) => a.iata).join(",");
-  console.info(`wrote ${OUT}: volcanoes=${summary || "none"} ashAtAirports=${ashAirports || "none"} sat=${data.satellite?.latestFrameTime ?? "?"}`);
+  const closed = data.airports.filter((a) => a.notam?.closed).map((a) => a.iata).join(",");
+  console.info(
+    `wrote ${OUT}: volcanoes=${summary || "none"} ashAtAirports=${ashAirports || "none"} closed=${notams.status === "skipped" ? "no-key" : closed || "none"} sat=${data.satellite?.latestFrameTime ?? "?"}`,
+  );
   if (data.volcanoes.length === 0 && data.satellite === null) process.exitCode = 1;
 }
 
