@@ -5,6 +5,10 @@
 [build.environment]
   NODE_VERSION = "22"
 
+# Scheduled function that starts the GitHub Actions refresh; see netlify/functions/trigger-refresh.mts.
+[functions]
+  directory = "netlify/functions"
+
 # The data file changes every 15 minutes; browsers must always revalidate it.
 [[headers]]
   for = "/data/*"

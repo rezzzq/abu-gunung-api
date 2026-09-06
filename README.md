@@ -133,6 +133,17 @@ The workflow needs two repository secrets:
 | `NETLIFY_SITE_ID` | The site's API ID from the Netlify project settings |
 | `NETLIFY_AUTH_TOKEN` | A Netlify personal access token (User settings, Applications) |
 
+GitHub's scheduled trigger proved unreliable (two runs in a day), so a Netlify
+scheduled function, `netlify/functions/trigger-refresh.mts`, starts the
+workflow every 15 minutes instead. It needs one site environment variable:
+
+| Variable | Value |
+| --- | --- |
+| `GITHUB_DISPATCH_TOKEN` | A fine-grained GitHub token for this repository with Actions: read and write |
+
+Set it with `npx netlify-cli env:set GITHUB_DISPATCH_TOKEN <token>` or in the
+Netlify project settings. Without it the function logs and does nothing.
+
 Two optional secrets switch on airport closure status from NOTAMs. Create a
 free account at https://api.faa.gov, register an application with access to
 the NOTAM API, then add its credentials:
