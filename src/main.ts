@@ -86,10 +86,7 @@ els.lang.addEventListener("click", () => {
 const map = createMap(els.map, `<strong>${VOLCANO.name}</strong><br>${VOLCANO.elevationM} m`);
 const basemap = new Basemap(map);
 const ashLayer = new AshLayer(map, (layer) => layerPopupHtml(layer, locale));
-initTheme(els.toggleTheme, locale, (theme) => {
-  basemap.setTheme(theme);
-  ashLayer.refreshTheme();
-});
+initTheme(els.toggleTheme, locale, (theme) => basemap.setTheme(theme));
 const satellite = new SatelliteLayer(map);
 const windLayer = new WindLayer(map, locale);
 const sheet = initSheet(els.sheet, els.sheetHandle, locale);
@@ -187,7 +184,6 @@ async function loadWind(): Promise<void> {
   }
   renderWindCard(els.windCard, wind, locale);
   windLayer.show(wind);
-  ashLayer.setWind(wind);
 }
 
 els.toggleSat.addEventListener("click", () => {

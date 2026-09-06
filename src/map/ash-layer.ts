@@ -2,8 +2,6 @@ import L from "leaflet";
 import { COLORS, HIGH_LAYER_FL } from "../config";
 import { closeRing } from "../lib/geo";
 import type { AshLayer as AshLayerData } from "../lib/schema";
-import type { WindReport } from "../lib/wind-report";
-import { SmokeLayer } from "./smoke-layer";
 
 export interface TimeStep {
   /** Short chip label, e.g. "Sekarang" or "+6 jam". */
@@ -19,22 +17,15 @@ export function isHighLayer(layer: AshLayerData): boolean {
   return layer.topFl >= HIGH_LAYER_FL;
 }
 
-/**
- * Ash coverage for one time step. The smoke canvas carries the look; thin vector outlines
- * on top mark the exact advisory boundary and take the taps that open the detail popups.
- */
 export class AshLayer {
   private readonly group: L.LayerGroup;
-  private readonly smoke: SmokeLayer;
 
   constructor(map: L.Map, private readonly popupHtml: (layer: AshLayerData) => string) {
     this.group = L.layerGroup().addTo(map);
-    this.smoke = new SmokeLayer(map);
   }
 
   show(step: TimeStep | null): void {
     this.group.clearLayers();
-    this.smoke.setLayers(step?.layers ?? []);
     if (!step) return;
     // Draw high layers first so the (usually smaller) low layer stays clickable on top.
     const ordered = [...step.layers].sort((a, b) => Number(isHighLayer(b)) - Number(isHighLayer(a)));
@@ -43,11 +34,10 @@ export class AshLayer {
       const high = isHighLayer(layer);
       const polygon = L.polygon(latLngs, {
         color: high ? COLORS.purple : COLORS.amber,
-        weight: 1,
-        opacity: 0.45,
-        // A transparent fill keeps the whole area tappable without hiding the smoke below.
-        fillColor: high ? COLORS.purple : COLORS.amber,
-        fillOpacity: 0,
+        weight: 2,
+        opacity: 0.95,
+        fillColor: high ? "url(#ash-hatch)" : COLORS.amber,
+        fillOpacity: high ? 1 : 0.4,
         className: high ? "ash ash--high" : "ash ash--low",
       });
       polygon.bindPopup(this.popupHtml(layer));
@@ -55,16 +45,7 @@ export class AshLayer {
     }
   }
 
-  setWind(report: WindReport | null): void {
-    this.smoke.setWind(report);
-  }
-
-  refreshTheme(): void {
-    this.smoke.refreshTheme();
-  }
-
   clear(): void {
     this.group.clearLayers();
-    this.smoke.setLayers([]);
   }
 }

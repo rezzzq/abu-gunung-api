@@ -25,9 +25,6 @@
   --glass: rgba(255, 255, 255, 0.86);
   --glass-strong: rgba(255, 255, 255, 0.94);
   --link-map: #0078a8;
-  /* Ash smoke colours; src/map/smoke-layer.ts reads these for the canvas. */
-  --ash-low: #e08a1e;
-  --ash-high: #6d28d9;
   --font-ui: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --radius: 14px;
@@ -59,8 +56,6 @@
   --glass: rgba(16, 32, 47, 0.88);
   --glass-strong: rgba(16, 32, 47, 0.94);
   --link-map: #7cc4e8;
-  --ash-low: #f2a239;
-  --ash-high: #9b6cf0;
   --shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
   --shadow-up: 0 -6px 24px rgba(0, 0, 0, 0.5);
   --track: #1a2d3f;
@@ -107,8 +102,6 @@ body.sheet-open .leaflet-control-attribution { display: none; }
   100% { transform: scale(3.2); opacity: 0; }
 }
 
-/* Ash smoke canvas: purely visual, the vector outlines above it take the taps. */
-.ash-smoke { position: absolute; left: 0; top: 0; pointer-events: none; }
 
 .user-marker { width: 16px; height: 16px; border-radius: 50%; background: #1e88e5; border: 3px solid var(--paper); box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.5); }
 
@@ -148,9 +141,9 @@ body.sheet-open .leaflet-control-attribution { display: none; }
 /* Legend */
 .legend { display: none; position: fixed; z-index: 840; background: var(--glass); backdrop-filter: blur(6px); padding: 8px 10px; border-radius: 10px; box-shadow: var(--shadow); font-size: 12px; gap: 4px; }
 .legend__row { display: flex; align-items: center; gap: 8px; }
-.legend__swatch { width: 18px; height: 13px; border-radius: 45% 55% 50% 50%; flex: none; border: 1px solid; }
-.legend__swatch--low { background: radial-gradient(ellipse at 45% 50%, var(--ash-low) 0%, color-mix(in srgb, var(--ash-low) 35%, transparent) 60%, transparent 100%); border-color: color-mix(in srgb, var(--ash-low) 55%, transparent); }
-.legend__swatch--high { background: radial-gradient(ellipse at 45% 50%, var(--ash-high) 0%, color-mix(in srgb, var(--ash-high) 35%, transparent) 60%, transparent 100%); border-color: color-mix(in srgb, var(--ash-high) 55%, transparent); }
+.legend__swatch { width: 16px; height: 12px; border-radius: 3px; flex: none; border: 1.5px solid; }
+.legend__swatch--low { background: rgba(224, 138, 30, 0.45); border-color: var(--amber); }
+.legend__swatch--high { background: repeating-linear-gradient(135deg, rgba(109, 40, 217, 0.55) 0 2px, rgba(109, 40, 217, 0.12) 2px 5px); border-color: var(--plume); }
 .legend__swatch--volcano { width: 12px; height: 12px; border-radius: 50%; background: var(--navy); border: 1.5px solid var(--amber); margin: 0 3px; }
 .legend__alt { font-family: var(--font-data); color: var(--ink-mute); font-size: 11px; }
 
@@ -186,7 +179,7 @@ body.sheet-open .leaflet-control-attribution { display: none; }
 .peek-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--ink-soft); }
 .peek-legend:empty { display: none; }
 .peek-legend .legend__row { gap: 7px; }
-.peek-legend .legend__swatch { width: 15px; height: 11px; }
+.peek-legend .legend__swatch { width: 14px; height: 10px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-weight: 800; font-size: 12px; letter-spacing: 0.02em; text-transform: uppercase; color: #fff; }
 .badge--level1 { background: var(--level1); }
 .badge--level2 { background: var(--level2); color: var(--navy); }
