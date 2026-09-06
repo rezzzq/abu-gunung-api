@@ -13,13 +13,12 @@ export const STALE_BAD_MIN = 720;
 /** Layers whose top is at or above this flight level count as "high" ash. */
 export const HIGH_LAYER_FL = 250;
 
-export const INITIAL_VIEW = { center: [-6.6, 105.2] as [number, number], zoom: 7 };
+/** Sunda Strait with Jakarta and Bandar Lampung both on screen on a phone at this zoom. */
+export const INITIAL_VIEW = { center: [-6.3, 105.6] as [number, number], zoom: 7 };
 
 export const BASEMAP = {
-  url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: "abcd",
+  url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+  attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS',
   maxZoom: 19,
 };
 

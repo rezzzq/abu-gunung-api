@@ -19,12 +19,8 @@ export function isHighLayer(layer: AshLayerData): boolean {
 
 export class AshLayer {
   private readonly group: L.LayerGroup;
-  private fitted = false;
 
-  constructor(
-    private readonly map: L.Map,
-    private readonly popupHtml: (layer: AshLayerData) => string,
-  ) {
+  constructor(map: L.Map, private readonly popupHtml: (layer: AshLayerData) => string) {
     this.group = L.layerGroup().addTo(map);
   }
 
@@ -33,7 +29,6 @@ export class AshLayer {
     if (!step) return;
     // Draw high layers first so the (usually smaller) low layer stays clickable on top.
     const ordered = [...step.layers].sort((a, b) => Number(isHighLayer(b)) - Number(isHighLayer(a)));
-    const bounds = L.latLngBounds([]);
     for (const layer of ordered) {
       const latLngs = closeRing(layer.polygon).map(([lon, lat]) => L.latLng(lat, lon));
       const high = isHighLayer(layer);
@@ -47,11 +42,6 @@ export class AshLayer {
       });
       polygon.bindPopup(this.popupHtml(layer));
       polygon.addTo(this.group);
-      bounds.extend(polygon.getBounds());
-    }
-    if (!this.fitted && bounds.isValid()) {
-      this.fitted = true;
-      this.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 8, animate: false });
     }
   }
 

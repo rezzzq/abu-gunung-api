@@ -37,11 +37,7 @@ export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
     attributionControl: true,
     worldCopyJump: true,
   });
-  L.tileLayer(BASEMAP.url, {
-    attribution: BASEMAP.attribution,
-    subdomains: BASEMAP.subdomains,
-    maxZoom: BASEMAP.maxZoom,
-  }).addTo(map);
+  L.tileLayer(BASEMAP.url, { attribution: BASEMAP.attribution, maxZoom: BASEMAP.maxZoom }).addTo(map);
   map.createPane("satellite").style.zIndex = "350";
   map.createPane("wind").style.zIndex = "450";
 
@@ -51,5 +47,7 @@ export function createMap(el: HTMLElement, volcanoPopupHtml: string): L.Map {
     .addTo(map);
 
   addHatchPattern(map);
+  // On wide screens the left panel covers part of the map; shift the view so the strait stays visible.
+  if (window.matchMedia("(min-width: 900px)").matches) map.panBy([-220, 0], { animate: false });
   return map;
 }
