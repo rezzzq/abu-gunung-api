@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-28T02:00:10Z",
+  "generatedAt": "2026-09-28T08:16:37Z",
   "volcanoes": [
     {
       "id": "SMR",
@@ -11,8 +11,8 @@
       "region": "Jawa Timur",
       "zone": "WIB",
       "vaac": {
-        "header": "FVAU02 ADRM 272320",
-        "issuedAt": "2026-09-27T23:20:00Z",
+        "header": "FVAU02 ADRM 280520",
+        "issuedAt": "2026-09-28T05:20:00Z",
         "volcano": "SEMERU 263300",
         "area": "INDONESIA",
         "position": {
@@ -20,42 +20,42 @@
           "lon": 112.9167
         },
         "elevationM": 3657,
-        "advisoryNumber": "2026/1109",
+        "advisoryNumber": "2026/1110",
         "infoSource": "HIMAWARI-9, CVGHM",
-        "eruptionDetails": "VA TO FL150 OBS AT 27/2300Z MOV SE",
+        "eruptionDetails": "VA TO FL150 OBS AT 28/0500Z MOV S",
         "remarks": "VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND REPORTS AND MODEL GUIDANCE.",
-        "nextAdvisoryBy": "2026-09-28T05:20:00Z",
+        "nextAdvisoryBy": "2026-09-28T11:20:00Z",
         "observation": {
           "kind": "OBS",
-          "time": "2026-09-27T23:00:00Z",
+          "time": "2026-09-28T05:00:00Z",
           "layers": [
             {
               "baseFl": 0,
               "topFl": 150,
               "polygon": [
                 [
-                  112.9167,
-                  -8.05
+                  112.9333,
+                  -8.0333
                 ],
                 [
                   113.3,
-                  -8.1667
+                  -8.2667
                 ],
                 [
-                  113.3167,
-                  -8.4
+                  113.1667,
+                  -8.55
                 ],
                 [
-                  113.0667,
-                  -8.4667
+                  112.85,
+                  -8.5
                 ],
                 [
-                  112.8667,
-                  -8.1167
+                  112.85,
+                  -8.0833
                 ]
               ],
               "movement": {
-                "direction": "SE",
+                "direction": "S",
                 "speedKt": 10
               }
             }
@@ -64,31 +64,31 @@
         "forecasts": [
           {
             "hoursAhead": 6,
-            "time": "2026-09-28T05:00:00Z",
+            "time": "2026-09-28T11:00:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 150,
                 "polygon": [
                   [
-                    112.9167,
-                    -8.05
+                    112.8167,
+                    -8.1167
+                  ],
+                  [
+                    112.9,
+                    -8
+                  ],
+                  [
+                    113.2833,
+                    -8.0167
                   ],
                   [
                     113.3167,
-                    -8.0833
+                    -8.3
                   ],
                   [
-                    113.35,
-                    -8.3833
-                  ],
-                  [
-                    113.1333,
-                    -8.4667
-                  ],
-                  [
-                    112.8667,
-                    -8.1167
+                    113.05,
+                    -8.45
                   ]
                 ],
                 "movement": null
@@ -97,31 +97,31 @@
           },
           {
             "hoursAhead": 12,
-            "time": "2026-09-28T11:00:00Z",
+            "time": "2026-09-28T17:00:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 150,
                 "polygon": [
                   [
-                    112.85,
-                    -8.1167
+                    112.8167,
+                    -8.1
                   ],
                   [
                     112.9,
-                    -8.0167
-                  ],
-                  [
-                    113.2667,
                     -8
                   ],
                   [
-                    113.3167,
-                    -8.2833
+                    113.2833,
+                    -8.0333
                   ],
                   [
-                    113.1,
-                    -8.4333
+                    113.3,
+                    -8.3833
+                  ],
+                  [
+                    112.9833,
+                    -8.4167
                   ]
                 ],
                 "movement": null
@@ -130,31 +130,31 @@
           },
           {
             "hoursAhead": 18,
-            "time": "2026-09-28T17:00:00Z",
+            "time": "2026-09-28T23:00:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 150,
                 "polygon": [
                   [
-                    112.9,
-                    -8
-                  ],
-                  [
-                    113.2833,
-                    -8.1333
-                  ],
-                  [
-                    113.2333,
-                    -8.4333
+                    112.8333,
+                    -8.1
                   ],
                   [
                     112.9167,
-                    -8.4667
+                    -8.0167
                   ],
                   [
-                    112.8,
-                    -8.0833
+                    113.3,
+                    -8.0167
+                  ],
+                  [
+                    113.35,
+                    -8.3667
+                  ],
+                  [
+                    113.0333,
+                    -8.45
                   ]
                 ],
                 "movement": null
@@ -162,11 +162,17 @@
             ]
           }
         ],
-        "raw": "FVAU02 ADRM 272320\nVA ADVISORY\nDTG: 20260927/2320Z\nVAAC: DARWIN\nVOLCANO: SEMERU 263300\nPSN: S0806 E11255\nAREA: INDONESIA\nSOURCE ELEV: 3657M AMSL\nADVISORY NR: 2026/1109\nINFO SOURCE: HIMAWARI-9, CVGHM\nERUPTION DETAILS: VA TO FL150 OBS AT 27/2300Z MOV SE\nOBS VA DTG: 27/2300Z\nOBS VA CLD: SFC/FL150 S0803 E11255 - S0810 E11318 - S0824\n        E11319 - S0828 E11304 - S0807 E11252 MOV SE 10KT\nFCST VA CLD +6 HR: 28/0500Z SFC/FL150 S0803 E11255 - S0805\n        E11319 - S0823 E11321 - S0828 E11308 - S0807 E11252\nFCST VA CLD +12 HR: 28/1100Z SFC/FL150 S0807 E11251 - S0801\n        E11254 - S0800 E11316 - S0817 E11319 - S0826 E11306\nFCST VA CLD +18 HR: 28/1700Z SFC/FL150 S0800 E11254 - S0808\n        E11317 - S0826 E11314 - S0828 E11255 - S0805 E11248\nRMK: VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND\n        REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. HEIGHT\n        AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND REPORTS AND\n        MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/0520Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
+        "raw": "FVAU02 ADRM 280520\nVA ADVISORY\nDTG: 20260928/0520Z\nVAAC: DARWIN\nVOLCANO: SEMERU 263300\nPSN: S0806 E11255\nAREA: INDONESIA\nSOURCE ELEV: 3657M AMSL\nADVISORY NR: 2026/1110\nINFO SOURCE: HIMAWARI-9, CVGHM\nERUPTION DETAILS: VA TO FL150 OBS AT 28/0500Z MOV S\nOBS VA DTG: 28/0500Z\nOBS VA CLD: SFC/FL150 S0802 E11256 - S0816 E11318 - S0833\n        E11310 - S0830 E11251 - S0805 E11251 MOV S 10KT\nFCST VA CLD +6 HR: 28/1100Z SFC/FL150 S0807 E11249 - S0800\n        E11254 - S0801 E11317 - S0818 E11319 - S0827 E11303\nFCST VA CLD +12 HR: 28/1700Z SFC/FL150 S0806 E11249 - S0800\n        E11254 - S0802 E11317 - S0823 E11318 - S0825 E11259\nFCST VA CLD +18 HR: 28/2300Z SFC/FL150 S0806 E11250 - S0801\n        E11255 - S0801 E11318 - S0822 E11321 - S0827 E11302\nRMK: VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND\n        REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. HEIGHT\n        AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND REPORTS AND\n        MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/1120Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
       },
       "advisorySource": "bom",
-      "graphic": "vag/SMR.png?v=202609272314",
+      "graphic": "vag/SMR.png?v=202609280516",
       "history": [
+        {
+          "number": "2026/1110",
+          "issuedAt": "2026-09-28T05:20:00Z",
+          "topFl": 150,
+          "direction": "S"
+        },
         {
           "number": "2026/1109",
           "issuedAt": "2026-09-27T23:20:00Z",
@@ -340,12 +346,6 @@
           "issuedAt": "2026-09-20T21:50:00Z",
           "topFl": 150,
           "direction": "E"
-        },
-        {
-          "number": "2026/1078",
-          "issuedAt": "2026-09-20T15:50:00Z",
-          "topFl": 150,
-          "direction": "E"
         }
       ],
       "active": true,
@@ -354,11 +354,11 @@
         "name": "Siaga"
       },
       "latestVona": {
-        "time": "2026-09-27T22:55:00Z",
+        "time": "2026-09-28T07:55:00Z",
         "colorCode": "Orange",
-        "title": "Semeru - 20260927/2255Z",
-        "text": "Eruption with volcanic ash cloud at 2255 UTC (0555 local). Best estimate of ash-cloud top is around 13043 FT (4076 M) above sea level or 1280 FT (400 M) above summit. May be higher than what can be observed clearly. Source of height data: ground observer. Ash cloud moving to south. Volcanic ash is observed to be white. The intensity of volcanic ash is observed to be medium..",
-        "url": "https://magma.esdm.go.id/v1/vona/22735?signature=97bbf5d3daeff76362ece0e2105685646d806c545a800ad6a8d9d27edb5c8176"
+        "title": "Semeru - 20260928/0755Z",
+        "text": "Eruption at 0755 UTC (1455 local). Ash-cloud is not observed. Ash-cloud is not observed..",
+        "url": "https://magma.esdm.go.id/v1/vona/22737?signature=2906f02819db50da2aee5a1590a2c10693c6ea58cecd6e983488ecaf7b5fea67"
       }
     },
     {
@@ -371,8 +371,8 @@
       "region": "Halmahera, Maluku Utara",
       "zone": "WIT",
       "vaac": {
-        "header": "FVAU01 ADRM 280120",
-        "issuedAt": "2026-09-28T01:20:00Z",
+        "header": "FVAU01 ADRM 280720",
+        "issuedAt": "2026-09-28T07:20:00Z",
         "volcano": "DUKONO 268010",
         "area": "INDONESIA",
         "position": {
@@ -380,34 +380,38 @@
           "lon": 127.9
         },
         "elevationM": 1229,
-        "advisoryNumber": "2026/806",
+        "advisoryNumber": "2026/807",
         "infoSource": "HIMAWARI-9",
-        "eruptionDetails": "VA TO FL070 LAST OBS AT 28/0010Z MOV NW",
-        "remarks": "VA RECENTLY IDENTIFIABLE ON SATELLITE IMAGERY MOV NW. VA EMISSIONS EXPECTED TO BE ONGOING. VA HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY AND MODEL GUIDANCE.",
-        "nextAdvisoryBy": "2026-09-28T07:20:00Z",
+        "eruptionDetails": "VA TO FL070 OBS AT 28/0700Z MOV NW",
+        "remarks": "VA IDENTIFIABLE ON SATELLITE IMAGERY. VA HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY AND MODEL GUIDANCE.",
+        "nextAdvisoryBy": "2026-09-28T13:20:00Z",
         "observation": {
-          "kind": "EST",
-          "time": "2026-09-28T01:00:00Z",
+          "kind": "OBS",
+          "time": "2026-09-28T07:00:00Z",
           "layers": [
             {
               "baseFl": 0,
               "topFl": 70,
               "polygon": [
                 [
+                  127.8833,
+                  1.6333
+                ],
+                [
+                  127.5333,
+                  1.75
+                ],
+                [
+                  127.5833,
+                  2.2
+                ],
+                [
+                  128.0333,
+                  2.1
+                ],
+                [
                   127.9833,
-                  1.65
-                ],
-                [
-                  127.6333,
-                  1.6667
-                ],
-                [
-                  127.4667,
-                  2.1167
-                ],
-                [
-                  127.95,
-                  2.25
+                  1.7
                 ]
               ],
               "movement": {
@@ -420,35 +424,6 @@
         "forecasts": [
           {
             "hoursAhead": 6,
-            "time": "2026-09-28T07:00:00Z",
-            "layers": [
-              {
-                "baseFl": 0,
-                "topFl": 70,
-                "polygon": [
-                  [
-                    127.9667,
-                    1.6667
-                  ],
-                  [
-                    127.85,
-                    1.6333
-                  ],
-                  [
-                    127.5,
-                    2.0833
-                  ],
-                  [
-                    127.9833,
-                    2.25
-                  ]
-                ],
-                "movement": null
-              }
-            ]
-          },
-          {
-            "hoursAhead": 12,
             "time": "2026-09-28T13:00:00Z",
             "layers": [
               {
@@ -477,7 +452,7 @@
             ]
           },
           {
-            "hoursAhead": 18,
+            "hoursAhead": 12,
             "time": "2026-09-28T19:00:00Z",
             "layers": [
               {
@@ -489,16 +464,53 @@
                     1.65
                   ],
                   [
-                    127.8,
+                    127.8167,
+                    1.65
+                  ],
+                  [
+                    127.6167,
+                    2.1167
+                  ],
+                  [
+                    127.9833,
+                    2.2
+                  ],
+                  [
+                    128.2167,
+                    1.95
+                  ]
+                ],
+                "movement": null
+              }
+            ]
+          },
+          {
+            "hoursAhead": 18,
+            "time": "2026-09-29T01:00:00Z",
+            "layers": [
+              {
+                "baseFl": 0,
+                "topFl": 70,
+                "polygon": [
+                  [
+                    127.8833,
                     1.6333
                   ],
                   [
-                    127.55,
+                    127.8167,
+                    1.7167
+                  ],
+                  [
+                    127.8667,
                     2.1667
                   ],
                   [
-                    128.1167,
-                    2.2
+                    128.2667,
+                    2.1167
+                  ],
+                  [
+                    128.3333,
+                    1.7333
                   ]
                 ],
                 "movement": null
@@ -506,11 +518,17 @@
             ]
           }
         ],
-        "raw": "FVAU01 ADRM 280120\nVA ADVISORY\nDTG: 20260928/0120Z\nVAAC: DARWIN\nVOLCANO: DUKONO 268010\nPSN: N0142 E12754\nAREA: INDONESIA\nSOURCE ELEV: 1229M AMSL\nADVISORY NR: 2026/806\nINFO SOURCE: HIMAWARI-9\nERUPTION DETAILS: VA TO FL070 LAST OBS AT 28/0010Z MOV NW\nEST VA DTG: 28/0100Z\nEST VA CLD: SFC/FL070 N0139 E12759 - N0140 E12738 - N0207\n        E12728 - N0215 E12757 MOV NW 05KT\nFCST VA CLD +6 HR: 28/0700Z SFC/FL070 N0140 E12758 - N0138\n        E12751 - N0205 E12730 - N0215 E12759\nFCST VA CLD +12 HR: 28/1300Z SFC/FL070 N0139 E12758 - N0138\n        E12750 - N0210 E12734 - N0214 E12807\nFCST VA CLD +18 HR: 28/1900Z SFC/FL070 N0139 E12758 - N0138\n        E12748 - N0210 E12733 - N0212 E12807\nRMK: VA RECENTLY IDENTIFIABLE ON SATELLITE IMAGERY MOV NW.\n        VA EMISSIONS EXPECTED TO BE ONGOING. VA HEIGHT AND MOVEMENT\n        BASED ON SATELLITE IMAGERY AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/0720Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
+        "raw": "FVAU01 ADRM 280720\nVA ADVISORY\nDTG: 20260928/0720Z\nVAAC: DARWIN\nVOLCANO: DUKONO 268010\nPSN: N0142 E12754\nAREA: INDONESIA\nSOURCE ELEV: 1229M AMSL\nADVISORY NR: 2026/807\nINFO SOURCE: HIMAWARI-9\nERUPTION DETAILS: VA TO FL070 OBS AT 28/0700Z MOV NW\nOBS VA DTG: 28/0700Z\nOBS VA CLD: SFC/FL070 N0138 E12753 - N0145 E12732 - N0212\n        E12735 - N0206 E12802 - N0142 E12759 MOV NW 05KT\nFCST VA CLD +6 HR: 28/1300Z SFC/FL070 N0139 E12758 - N0138\n        E12750 - N0210 E12734 - N0214 E12807\nFCST VA CLD +12 HR: 28/1900Z SFC/FL070 N0139 E12758 - N0139\n        E12749 - N0207 E12737 - N0212 E12759 - N0157 E12813\nFCST VA CLD +18 HR: 29/0100Z SFC/FL070 N0138 E12753 - N0143\n        E12749 - N0210 E12752 - N0207 E12816 - N0144 E12820\nRMK: VA IDENTIFIABLE ON SATELLITE IMAGERY.  VA HEIGHT AND\n        MOVEMENT BASED ON SATELLITE IMAGERY AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/1320Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
       },
       "advisorySource": "bom",
-      "graphic": "vag/DUK.png?v=202609280115",
+      "graphic": "vag/DUK.png?v=202609280718",
       "history": [
+        {
+          "number": "2026/807",
+          "issuedAt": "2026-09-28T07:20:00Z",
+          "topFl": 70,
+          "direction": "NW"
+        },
         {
           "number": "2026/806",
           "issuedAt": "2026-09-28T01:20:00Z",
@@ -601,8 +619,8 @@
       "region": "Halmahera, Maluku Utara",
       "zone": "WIT",
       "vaac": {
-        "header": "FVAU03 ADRM 272210",
-        "issuedAt": "2026-09-27T22:10:00Z",
+        "header": "FVAU03 ADRM 280410",
+        "issuedAt": "2026-09-28T04:10:00Z",
         "volcano": "IBU 268030",
         "area": "INDONESIA",
         "position": {
@@ -610,38 +628,42 @@
           "lon": 127.6333
         },
         "elevationM": 1325,
-        "advisoryNumber": "2026/1100",
+        "advisoryNumber": "2026/1101",
         "infoSource": "HIMAWARI-9, CVGHM",
-        "eruptionDetails": "VA TO FL070 OBS AT 27/2150Z MOV W",
+        "eruptionDetails": "VA TO FL070 OBS AT 28/0340Z, MOV NW",
         "remarks": "VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. VA HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND REPORTS AND MODEL GUIDANCE.",
-        "nextAdvisoryBy": "2026-09-28T04:10:00Z",
+        "nextAdvisoryBy": "2026-09-28T10:10:00Z",
         "observation": {
           "kind": "OBS",
-          "time": "2026-09-27T21:50:00Z",
+          "time": "2026-09-28T03:40:00Z",
           "layers": [
             {
               "baseFl": 0,
               "topFl": 70,
               "polygon": [
                 [
-                  127.7,
+                  127.65,
+                  1.4333
+                ],
+                [
+                  127.3167,
                   1.45
                 ],
                 [
-                  127.45,
-                  1.3667
+                  127.3167,
+                  1.6667
                 ],
                 [
-                  127.25,
-                  1.6833
+                  127.5333,
+                  1.7833
                 ],
                 [
-                  127.6,
-                  1.8333
+                  127.7,
+                  1.5
                 ]
               ],
               "movement": {
-                "direction": "W",
+                "direction": "NW",
                 "speedKt": 5
               }
             }
@@ -650,7 +672,7 @@
         "forecasts": [
           {
             "hoursAhead": 6,
-            "time": "2026-09-28T03:50:00Z",
+            "time": "2026-09-28T09:40:00Z",
             "layers": [
               {
                 "baseFl": 0,
@@ -661,20 +683,20 @@
                     1.4333
                   ],
                   [
-                    127.3833,
-                    1.4667
-                  ],
-                  [
                     127.2833,
-                    1.7333
+                    1.6833
                   ],
                   [
-                    127.6667,
+                    127.45,
                     1.8833
                   ],
                   [
-                    127.7167,
-                    1.4667
+                    127.6667,
+                    1.9167
+                  ],
+                  [
+                    127.7,
+                    1.4833
                   ]
                 ],
                 "movement": null
@@ -683,27 +705,31 @@
           },
           {
             "hoursAhead": 12,
-            "time": "2026-09-28T09:50:00Z",
+            "time": "2026-09-28T15:40:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 70,
                 "polygon": [
                   [
-                    127.5833,
-                    1.45
+                    127.6667,
+                    1.3667
                   ],
                   [
-                    127.3667,
-                    1.9
+                    127.4333,
+                    1.5167
                   ],
                   [
-                    127.8667,
-                    1.9167
+                    127.5,
+                    1.7667
                   ],
                   [
-                    127.7,
-                    1.45
+                    127.7667,
+                    1.7833
+                  ],
+                  [
+                    127.8,
+                    1.4833
                   ]
                 ],
                 "movement": null
@@ -712,31 +738,35 @@
           },
           {
             "hoursAhead": 18,
-            "time": "2026-09-28T15:50:00Z",
+            "time": "2026-09-28T21:40:00Z",
             "layers": [
               {
                 "baseFl": 0,
                 "topFl": 70,
                 "polygon": [
                   [
-                    127.6,
-                    1.4167
+                    127.65,
+                    1.3833
                   ],
                   [
-                    127.3833,
-                    1.55
+                    127.5,
+                    1.5
                   ],
                   [
-                    127.4,
-                    1.9333
+                    127.4667,
+                    1.7167
                   ],
                   [
-                    127.8167,
-                    1.9333
+                    127.6667,
+                    1.8333
                   ],
                   [
-                    127.7333,
-                    1.45
+                    127.85,
+                    1.6833
+                  ],
+                  [
+                    127.8,
+                    1.4667
                   ]
                 ],
                 "movement": null
@@ -744,11 +774,17 @@
             ]
           }
         ],
-        "raw": "FVAU03 ADRM 272210\nVA ADVISORY\nDTG: 20260927/2210Z\nVAAC: DARWIN\nVOLCANO: IBU 268030\nPSN: N0129 E12738\nAREA: INDONESIA\nSOURCE ELEV: 1325M AMSL\nADVISORY NR: 2026/1100\nINFO SOURCE: HIMAWARI-9, CVGHM\nERUPTION DETAILS: VA TO FL070 OBS AT 27/2150Z MOV W\nOBS VA DTG: 27/2150Z\nOBS VA CLD: SFC/FL070 N0127 E12742 - N0122 E12727 - N0141\n        E12715 - N0150 E12736 MOV W 05KT\nFCST VA CLD +6 HR: 28/0350Z SFC/FL070 N0126 E12737 - N0128\n        E12723 - N0144 E12717 - N0153 E12740 - N0128 E12743\nFCST VA CLD +12 HR: 28/0950Z SFC/FL070 N0127 E12735 - N0154\n        E12722 - N0155 E12752 - N0127 E12742\nFCST VA CLD +18 HR: 28/1550Z SFC/FL070 N0125 E12736 - N0133\n        E12723 - N0156 E12724 - N0156 E12749 - N0127 E12744\nRMK: VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND\n        REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. VA\n        HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND\n        REPORTS AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/0410Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
+        "raw": "FVAU03 ADRM 280410\nVA ADVISORY\nDTG: 20260928/0410Z\nVAAC: DARWIN\nVOLCANO: IBU 268030\nPSN: N0129 E12738\nAREA: INDONESIA\nSOURCE ELEV: 1325M AMSL\nADVISORY NR: 2026/1101\nINFO SOURCE: HIMAWARI-9, CVGHM\nERUPTION DETAILS: VA TO FL070 OBS AT 28/0340Z, MOV NW\nOBS VA DTG: 28/0340Z\nOBS VA CLD: SFC/FL070 N0126 E12739 - N0127 E12719 - N0140\n        E12719 - N0147 E12732 - N0130 E12742 MOV NW 05KT\nFCST VA CLD +6 HR: 28/0940Z SFC/FL070 N0126 E12737 - N0141\n        E12717 - N0153 E12727 - N0155 E12740 - N0129 E12742\nFCST VA CLD +12 HR: 28/1540Z SFC/FL070 N0122 E12740 - N0131\n        E12726 - N0146 E12730 - N0147 E12746 - N0129 E12748\nFCST VA CLD +18 HR: 28/2140Z SFC/FL070 N0123 E12739 - N0130\n        E12730 - N0143 E12728 - N0150 E12740 - N0141 E12751 - N0128\n        E12748\nRMK: VA IDENTIFIABLE ON LATEST SATELLITE IMAGERY. GROUND\n        REPORTS INDICATE INTERMITTENT ERUPTIONS ARE ONGOING. VA\n        HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY, GROUND\n        REPORTS AND MODEL GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/1010Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
       },
       "advisorySource": "bom",
-      "graphic": "vag/IBU.png?v=202609272203",
+      "graphic": "vag/IBU.png?v=202609280400",
       "history": [
+        {
+          "number": "2026/1101",
+          "issuedAt": "2026-09-28T04:10:00Z",
+          "topFl": 70,
+          "direction": "NW"
+        },
         {
           "number": "2026/1100",
           "issuedAt": "2026-09-27T22:10:00Z",
@@ -922,12 +958,6 @@
           "issuedAt": "2026-09-20T22:10:00Z",
           "topFl": 70,
           "direction": "SE"
-        },
-        {
-          "number": "2026/1069",
-          "issuedAt": "2026-09-20T16:10:00Z",
-          "topFl": 70,
-          "direction": "E"
         }
       ],
       "active": true,
@@ -936,366 +966,12 @@
         "name": "Waspada"
       },
       "latestVona": {
-        "time": "2026-09-26T06:59:00Z",
+        "time": "2026-09-28T05:00:00Z",
         "colorCode": "Orange",
-        "title": "Ibu - 20260926/0659Z",
-        "text": "Eruption with volcanic ash cloud at 0659 UTC (1559 local). Best estimate of ash-cloud top is around 5520 FT (1725 M) above sea level or 1280 FT (400 M) above summit. May be higher than what can be observed clearly. Source of height data: ground observer. Ash cloud moving to northeast. Volcanic ash is observed to be gray. The intensity of volcanic ash is observed to be medium..",
-        "url": "https://magma.esdm.go.id/v1/vona/22723?signature=511633d567b569e34c1a77409ac9440fad465f262b96a0e03a3de95531044986"
+        "title": "Ibu - 20260928/0500Z",
+        "text": "Eruption with volcanic ash cloud at 0500 UTC (1400 local). Best estimate of ash-cloud top is around 5520 FT (1725 M) above sea level or 1280 FT (400 M) above summit. May be higher than what can be observed clearly. Source of height data: ground observer. Ash cloud moving to north. Volcanic ash is observed to be gray. The intensity of volcanic ash is observed to be thick..",
+        "url": "https://magma.esdm.go.id/v1/vona/22736?signature=991a489abe38cd6c8ff752651e495e7634387fc6bdba7f5ef80d4eff1e2f1141"
       }
-    },
-    {
-      "id": "LEW",
-      "name": "Ili Lewotolok",
-      "gvp": "264230",
-      "lat": -8.2667,
-      "lon": 123.5,
-      "elevationM": 1423,
-      "region": "Lembata, NTT",
-      "zone": "WITA",
-      "vaac": {
-        "header": "FVAU04 ADRM 272250",
-        "issuedAt": "2026-09-27T22:50:00Z",
-        "volcano": "LEWOTOLOK 264230",
-        "area": "INDONESIA",
-        "position": {
-          "lat": -8.2667,
-          "lon": 123.5
-        },
-        "elevationM": 1423,
-        "advisoryNumber": "2026/287",
-        "infoSource": "HIMAWARI-9, CVGHM, WEBCAM",
-        "eruptionDetails": "VA TO FL070 LAST OBS FM WEBCAM AT 27/1046Z",
-        "remarks": "VA NOT IDENTIFIABLE ON LATEST SATELLITE IMAGERY DUE TO MET CLD. GROUND REPORTS INDICATE ONGOING DISCRETE ERUPTIONS. HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY AND MODEL GUIDANCE.",
-        "nextAdvisoryBy": "2026-09-28T04:50:00Z",
-        "observation": {
-          "kind": "EST",
-          "time": "2026-09-27T22:30:00Z",
-          "layers": [
-            {
-              "baseFl": 0,
-              "topFl": 70,
-              "polygon": [
-                [
-                  123.5333,
-                  -8.25
-                ],
-                [
-                  123.5167,
-                  -8.3167
-                ],
-                [
-                  123.1833,
-                  -8.3333
-                ],
-                [
-                  123.0833,
-                  -8.15
-                ],
-                [
-                  123.25,
-                  -8.05
-                ]
-              ],
-              "movement": {
-                "direction": "W",
-                "speedKt": 10
-              }
-            }
-          ]
-        },
-        "forecasts": [
-          {
-            "hoursAhead": 6,
-            "time": "2026-09-28T04:30:00Z",
-            "layers": [
-              {
-                "baseFl": 0,
-                "topFl": 70,
-                "polygon": [
-                  [
-                    123.5333,
-                    -8.25
-                  ],
-                  [
-                    123.5167,
-                    -8.3167
-                  ],
-                  [
-                    123.2,
-                    -8.35
-                  ],
-                  [
-                    123.1,
-                    -8.1667
-                  ],
-                  [
-                    123.2667,
-                    -8.0833
-                  ]
-                ],
-                "movement": null
-              }
-            ]
-          },
-          {
-            "hoursAhead": 12,
-            "time": "2026-09-28T10:30:00Z",
-            "layers": [
-              {
-                "baseFl": 0,
-                "topFl": 70,
-                "polygon": [
-                  [
-                    123.5333,
-                    -8.25
-                  ],
-                  [
-                    123.5167,
-                    -8.3167
-                  ],
-                  [
-                    123.2,
-                    -8.3833
-                  ],
-                  [
-                    123.1,
-                    -8.2
-                  ],
-                  [
-                    123.25,
-                    -8.0667
-                  ]
-                ],
-                "movement": null
-              }
-            ]
-          },
-          {
-            "hoursAhead": 18,
-            "time": "2026-09-28T16:30:00Z",
-            "layers": [
-              {
-                "baseFl": 0,
-                "topFl": 70,
-                "polygon": [
-                  [
-                    123.5333,
-                    -8.25
-                  ],
-                  [
-                    123.5333,
-                    -8.3167
-                  ],
-                  [
-                    123.2333,
-                    -8.4167
-                  ],
-                  [
-                    123.1,
-                    -8.2333
-                  ],
-                  [
-                    123.2667,
-                    -8.1
-                  ]
-                ],
-                "movement": null
-              }
-            ]
-          }
-        ],
-        "raw": "FVAU04 ADRM 272250\nVA ADVISORY\nDTG: 20260927/2250Z\nVAAC: DARWIN\nVOLCANO: LEWOTOLOK 264230\nPSN: S0816 E12330\nAREA: INDONESIA\nSOURCE ELEV: 1423M AMSL\nADVISORY NR: 2026/287\nINFO SOURCE: HIMAWARI-9, CVGHM, WEBCAM\nERUPTION DETAILS: VA TO FL070 LAST OBS FM WEBCAM AT 27/1046Z\nEST VA DTG: 27/2230Z\nEST VA CLD: SFC/FL070 S0815 E12332 - S0819 E12331 - S0820\n        E12311 - S0809 E12305 - S0803 E12315 MOV W 10KT\nFCST VA CLD +6 HR: 28/0430Z SFC/FL070 S0815 E12332 - S0819\n        E12331 - S0821 E12312 - S0810 E12306 - S0805 E12316\nFCST VA CLD +12 HR: 28/1030Z SFC/FL070 S0815 E12332 - S0819\n        E12331 - S0823 E12312 - S0812 E12306 - S0804 E12315\nFCST VA CLD +18 HR: 28/1630Z SFC/FL070 S0815 E12332 - S0819\n        E12332 - S0825 E12314 - S0814 E12306 - S0806 E12316\nRMK: VA NOT IDENTIFIABLE ON LATEST SATELLITE IMAGERY DUE TO\n        MET CLD. GROUND REPORTS INDICATE ONGOING DISCRETE ERUPTIONS.\n        HEIGHT AND MOVEMENT BASED ON SATELLITE IMAGERY AND MODEL\n        GUIDANCE.\nNXT ADVISORY: NO LATER THAN 20260928/0450Z=\n\nCopyright Commonwealth of Australia 2011, Bureau of Meteorology (ABN 92 637 533\n532).  Users of these web pages are deemed to have read and accepted the\nconditions described in the Copyright, Disclaimer, and Privacy statements\n(http://www.bom.gov.au/other/copyright.shtml)."
-      },
-      "advisorySource": "bom",
-      "graphic": "vag/LEW.png?v=202609272249",
-      "history": [
-        {
-          "number": "2026/287",
-          "issuedAt": "2026-09-27T22:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/286",
-          "issuedAt": "2026-09-27T16:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/285",
-          "issuedAt": "2026-09-27T10:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/284",
-          "issuedAt": "2026-09-27T04:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/283",
-          "issuedAt": "2026-09-26T22:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/282",
-          "issuedAt": "2026-09-26T16:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/281",
-          "issuedAt": "2026-09-26T10:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/280",
-          "issuedAt": "2026-09-26T04:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/279",
-          "issuedAt": "2026-09-25T22:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/278",
-          "issuedAt": "2026-09-25T16:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/277",
-          "issuedAt": "2026-09-25T10:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/276",
-          "issuedAt": "2026-09-25T04:50:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/275",
-          "issuedAt": "2026-09-24T23:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/274",
-          "issuedAt": "2026-09-24T17:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/273",
-          "issuedAt": "2026-09-24T11:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/272",
-          "issuedAt": "2026-09-24T05:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/271",
-          "issuedAt": "2026-09-23T23:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/270",
-          "issuedAt": "2026-09-23T17:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/268",
-          "issuedAt": "2026-09-23T04:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/267",
-          "issuedAt": "2026-09-22T22:50:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/266",
-          "issuedAt": "2026-09-22T17:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/265",
-          "issuedAt": "2026-09-22T11:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/264",
-          "issuedAt": "2026-09-22T05:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/263",
-          "issuedAt": "2026-09-21T23:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/262",
-          "issuedAt": "2026-09-21T17:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/261",
-          "issuedAt": "2026-09-21T11:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/260",
-          "issuedAt": "2026-09-21T05:00:00Z",
-          "topFl": 70,
-          "direction": "NW"
-        },
-        {
-          "number": "2026/259",
-          "issuedAt": "2026-09-20T23:00:00Z",
-          "topFl": 70,
-          "direction": "SW"
-        },
-        {
-          "number": "2026/258",
-          "issuedAt": "2026-09-20T17:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        },
-        {
-          "number": "2026/257",
-          "issuedAt": "2026-09-20T11:00:00Z",
-          "topFl": 70,
-          "direction": "W"
-        }
-      ],
-      "active": true,
-      "activityLevel": {
-        "level": 2,
-        "name": "Waspada"
-      },
-      "latestVona": null
     },
     {
       "id": "MER",
@@ -1347,9 +1023,9 @@
       "lat": -6.126,
       "lon": 106.656,
       "site": "https://soekarnohatta.injourneyairports.id/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIII 280130Z 10007KT 060V150 7000 FEW020 30/23 Q1013 NOSIG",
-      "visibilityM": 7000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIII 280800Z 01011KT 9000 FEW020 32/25 Q1010 NOSIG",
+      "visibilityM": 9000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1361,12 +1037,10 @@
       "city": "Jakarta",
       "lat": -6.267,
       "lon": 106.891,
-      "observedAt": "2026-09-28T01:00:00Z",
-      "raw": "METAR WIHH 280100Z 06007KT 5000 HZ NSC 29/23 Q1013 NOSIG",
-      "visibilityM": 5000,
-      "weather": [
-        "HZ"
-      ],
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIHH 280800Z 01012KT 7000 SCT018 33/23 Q1010 NOSIG",
+      "visibilityM": 7000,
+      "weather": [],
       "ash": false,
       "notam": null
     },
@@ -1406,12 +1080,10 @@
       "city": "Bandar Lampung",
       "lat": -5.243,
       "lon": 105.179,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WILL 280130Z VRB01KT 4100 HZ FEW016 28/24 Q1013 NOSIG",
-      "visibilityM": 4100,
-      "weather": [
-        "HZ"
-      ],
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WILL 280800Z 13009KT 8000 FEW017 34/19 Q1009 NOSIG",
+      "visibilityM": 8000,
+      "weather": [],
       "ash": false,
       "notam": null
     },
@@ -1422,9 +1094,9 @@
       "city": "Palembang",
       "lat": -2.898,
       "lon": 104.7,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIPP 280130Z 19004KT 140V280 5000 FU SCT014 27/24 Q1013 NOSIG",
-      "visibilityM": 5000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIPP 280800Z 12006KT 3500 FU SCT015 35/22 Q1009 NOSIG",
+      "visibilityM": 3500,
       "weather": [
         "FU"
       ],
@@ -1466,8 +1138,8 @@
       "city": "Padang",
       "lat": -0.787,
       "lon": 100.281,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIEE 280130Z 02003KT 320V060 9999 FEW020 28/24 Q1012 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIEE 280800Z 21006KT 160V240 9999 FEW020 31/25 Q1010 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1480,10 +1152,12 @@
       "city": "Pekanbaru",
       "lat": 0.461,
       "lon": 101.445,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIBB 280130Z 14010KT 6000 SCT011 27/25 Q1012 NOSIG",
-      "visibilityM": 6000,
-      "weather": [],
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIBB 280800Z 09006KT 4000 FU SCT012 34/24 Q1008 NOSIG",
+      "visibilityM": 4000,
+      "weather": [
+        "FU"
+      ],
       "ash": false,
       "notam": null
     },
@@ -1494,9 +1168,9 @@
       "city": "Medan",
       "lat": 3.642,
       "lon": 98.885,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIMM 280130Z 13007KT 100V170 8000 FEW018 29/25 Q1011 NOSIG",
-      "visibilityM": 8000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIMM 280800Z 03013KT 9999 SCT017 32/25 Q1008 NOSIG",
+      "visibilityM": 10000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1508,8 +1182,8 @@
       "city": "Banda Aceh",
       "lat": 5.523,
       "lon": 95.42,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WITT 280130Z 16003KT 110V220 9999 SCT018 27/23 Q1010 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WITT 280800Z 15007KT 110V190 9999 SCT018 36/20 Q1008 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1522,11 +1196,11 @@
       "city": "Batam",
       "lat": 1.121,
       "lon": 104.119,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WIDD 280130Z 26005KT 5000 HZ FEW014 27/26 Q1013 NOSIG",
-      "visibilityM": 5000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WIDD 280800Z 19003KT 1700 FU FEW013CB FEW014 29/25 Q1011 NOSIG RMK CB TO SW",
+      "visibilityM": 1700,
       "weather": [
-        "HZ"
+        "FU"
       ],
       "ash": false,
       "notam": null
@@ -1538,12 +1212,10 @@
       "city": "Semarang",
       "lat": -6.973,
       "lon": 110.375,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WAHS 280130Z 05004KT 5000 HZ FEW018 30/22 Q1014 NOSIG",
-      "visibilityM": 5000,
-      "weather": [
-        "HZ"
-      ],
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WAHS 280800Z 34006KT 310V040 6000 FEW018 32/23 Q1009 NOSIG",
+      "visibilityM": 6000,
+      "weather": [],
       "ash": false,
       "notam": null
     },
@@ -1555,9 +1227,9 @@
       "lat": -7.905,
       "lon": 110.057,
       "site": "https://yogyakarta-airport.co.id/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WAHI 280130Z 15007KT 110V190 8000 FEW020 27/22 Q1015 NOSIG",
-      "visibilityM": 8000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WAHI 280800Z 14007KT 110V190 9999 FEW020 28/23 Q1011 NOSIG",
+      "visibilityM": 10000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1584,9 +1256,9 @@
       "lat": -7.38,
       "lon": 112.787,
       "site": "https://juanda-airport.com/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WARR 280130Z 11007KT 8000 FEW020 30/24 Q1015 NOSIG",
-      "visibilityM": 8000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WARR 280800Z 09015KT 9999 FEW020 31/24 Q1011 NOSIG",
+      "visibilityM": 10000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1612,9 +1284,9 @@
       "city": "Banyuwangi",
       "lat": -8.31,
       "lon": 114.34,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WADY 280130Z 20003KT 7000 BKN018 27/23 Q1016 NOSIG",
-      "visibilityM": 7000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WADY 280800Z 13008KT 9999 FEW019 31/23 Q1012 NOSIG",
+      "visibilityM": 10000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1627,8 +1299,8 @@
       "lat": -8.748,
       "lon": 115.167,
       "site": "https://ngurahrai.injourneyairports.id/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WADD 280130Z 11008KT 9999 SCT016 30/24 Q1016 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WADD 280800Z 15010KT 9999 FEW017 31/25 Q1012 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1642,9 +1314,9 @@
       "lat": -8.757,
       "lon": 116.277,
       "site": "https://lombok-airport.co.id/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WADL 280130Z 07005KT 010V120 7000 SCT016 30/21 Q1016 NOSIG",
-      "visibilityM": 7000,
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WADL 280800Z 12008KT 090V160 8000 BKN016 30/22 Q1013 NOSIG",
+      "visibilityM": 8000,
       "weather": [],
       "ash": false,
       "notam": null
@@ -1740,8 +1412,8 @@
       "city": "Kupang",
       "lat": -10.171,
       "lon": 123.671,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WATT 280130Z 33006KT 9999 FEW020 30/18 Q1016 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WATT 280800Z 33007KT 9999 SCT017 29/23 Q1013 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1755,8 +1427,8 @@
       "lat": -5.062,
       "lon": 119.554,
       "site": "https://hasanuddin-airport.co.id/",
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WAAA 280130Z VRB04KT 9999 FEW020 32/19 Q1014 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WAAA 280800Z 27008KT 220V310 9999 FEW020 35/19 Q1010 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1769,8 +1441,8 @@
       "city": "Manado",
       "lat": 1.549,
       "lon": 124.926,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WAMM 280130Z 17011KT 130V210 9999 FEW021 33/17 Q1016 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WAMM 280800Z VRB05KT 9999 FEW020 31/21 Q1013 NOSIG",
       "visibilityM": 10000,
       "weather": [],
       "ash": false,
@@ -1825,8 +1497,8 @@
       "city": "Ambon",
       "lat": -3.71,
       "lon": 128.089,
-      "observedAt": "2026-09-28T01:30:00Z",
-      "raw": "METAR WAPP 280130Z 16005KT 100V220 5000 HZ SCT016 30/23 Q1015 NOSIG",
+      "observedAt": "2026-09-28T08:00:00Z",
+      "raw": "METAR WAPP 280800Z 17005KT 5000 HZ SCT016 28/24 Q1011 NOSIG",
       "visibilityM": 5000,
       "weather": [
         "HZ"
@@ -1835,11 +1507,11 @@
       "notam": null
     }
   ],
-  "magmaFetchedAt": "2026-09-28T02:00:10Z",
+  "magmaFetchedAt": "2026-09-28T08:16:37Z",
   "notes": [],
   "satellite": {
     "layer": "Himawari_AHI_Band13_Clean_Infrared",
-    "latestFrameTime": "2026-09-28T01:00:00Z"
+    "latestFrameTime": "2026-09-28T07:30:00Z"
   },
   "sourceErrors": []
 }
